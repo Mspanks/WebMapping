@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+        <meta charset='utf-8' />
+        <title>University of Oregon Mapping</title>
+        <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+     <!--    The Mapbox JavaScript here in the <head> of the page    -->
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.1.0/mapbox-gl.js'></script>
+     <!--    The Mapbox CSS here in the <head> of the page    -->
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.1.0/mapbox-gl.css' rel='stylesheet' />
+     <!-- Google Font Barlow -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+     <!-- Google Font Cormorant -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+     
+      <style>
+         /* CSS code between the <style> tags */
+            body { margin:0; padding:0; }
+            #map { position:absolute; top:0; bottom:0; width:100%; }
+            
+         /* Overrides the pop-up width slightly bigger min-width than the default Mapbox CSS*/
+           
+           .mapboxgl-popup {
+            min-width: 325px;
+            /*add the css for the popup font here */
+            font-family: 'Barlow', sans-serif;
+            font-weight: 200;
+            font-style: normal;
+            text-align: center;
+            font-size: 1.2em;
+            } 
+            
+            
+         /* The CSS for the "Fly" buttons  */
+            .fly {
+             display: inline-block; /* displays over the map */
+             position: relative; /* displays over the map */
+             margin: 0px auto; 
+             width: 24.8%;  /* width of parent div */
+             padding: 10px;
+             border-style: solid;
+             border-color: #ffffff;
+             border-radius: 10px; /* rounded corners */
+             font-size: 1.2em;
+             text-align: center;
+             font-weight: bold;
+             color: #ffffff;
+             background: #385A5C;
+             cursor:pointer;
+            }
+          
+          .play-button {
+             display: block; /* displays over the map */
+             position: relative; /* displays over the map */
+             margin: 630px auto; 
+             width: 40%;  /* width of parent div */
+             padding: 10px;
+             border-style: solid;
+             border-color: #ffffff;
+             border-radius: 10px; /* rounded corners */
+             font-size: 1.2em;
+             text-align: center;
+             font-weight: bold;
+             color: #ffffff;
+             background: #385A5C;
+             cursor:pointer;
+          }
+            
+          
+          
+         /* Insert the CSS for the image here */
+          .popupImage{
+            width:100%;
+           }
+          
+         /* Insert the CSS for the button here */
+          button {
+            font-family: "Barlow", sans-serif;
+            font-weight: 200;
+           } 
+          
+          /* CSS for Next button */ 
+          .sourceText{
+            font-family: "Cormorant", serif;
+            font-weight: 200;
+            font-size: 15px;
+           }
+            
+        
+          
+       </style>
+      
+  </head>
+    
+  <body>
+       <!--  The map div -->
+        <div id='map'></div>
+      
+       <!--  Insert the button elements here  -->
+       <!--  Adds "FLY" Buttons to the map with each city  -->        
+        <button class='fly' id='PortlandButton'>Jump to Portland</button>
+        <button class='fly' id='LondonButton'>Jump to London</button>
+        <button class='fly' id='YellowstoneButton'>Jump to Yellowstone</button> 
+        <button class='fly' id='SanFranciscoButton'>Jump to San Francisco</button> 
+       <!-- Button for Next Popup -->
+        <button class='play-button' id= 'Next'> Next Popup </button>
+      
+      <script>
+         // Insert the JavaScript within the <script> tags, within the body   
+         // Start with the Mapbox access token
+            mapboxgl.accessToken = 'pk.eyJ1Ijoiam9tZXJzb24iLCJhIjoiY2o1bXE2bHlyMnJhZDMzbnpyMnhlODdpcSJ9.QJMJ_cTFCY050aZfSn1umQ';
+            
+         // Initialize the map
+            var map = new mapboxgl.Map({
+             container: 'map', // id of a div on your page, where the map will be inserted
+             style: 'mapbox://styles/mapbox/outdoors-v11', // stylesheet location
+             center: [-122.6788, 45.5212], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+             zoom: 13 // starting zoom 
+            });
+            
+         /***  POPUPS  ***/
+         // popups go here
+         // Popup for marker 1  
+            var popup1_content = '<h2>Play the Video to Listen to Portland</h2><br>';
+                popup1_content += '<iframe width="100%" src="https://www.youtube.com/embed/z1AdmS-LqyA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+                popup1_content += '<span class="sourceText"> Source: Ian Lind, <a href="https://www.youtube.com/embed/z1AdmS-LqyA" target="_blank">YouTube</a>';
+                
+            var popup1 = new mapboxgl.Popup({ minWidth:'300px' })
+                .setHTML(popup1_content);
+            
+         // Popup for marker 2  
+            var popup2_content = '<h2>Press Play to Listen to London in 1928</h2><br>';
+                popup2_content += '<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/892653091&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe><div style="font-size: 10px; color: #cccccc;line-break: anywhere;word-break: normal;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;font-weight: 100;"><a href="https://soundcloud.com/londonstreetnoises" title="London Street Noises" target="_blank" style="color: #cccccc; text-decoration: none;">London Street Noises</a> · <a href="https://soundcloud.com/londonstreetnoises/cromwell-1928" title="London Cromwell Road / Queen&#x27;s Gate in 1928" target="_blank" style="color: #cccccc; text-decoration: none;">London Cromwell Road / Queen&#x27;s Gate in 1928</a></div>';
+                popup2_content += '<span class="sourceText"> Source: LondonStreetNoises.co.uk, <a href="https://soundcloud.com/londonstreetnoises" target="_blank"> SoundCloud </a>';
+            
+            var popup2 = new mapboxgl.Popup({ minWidth:'300px' })
+                .setHTML(popup2_content);
+            
+         // Popup for marker 3  
+            var popup3_content = '<h2>Press Play to Listen to a Bison Eating</h2><br>';   
+                popup3_content += '<audio controls><source src="sounds/yell-YELLBisonEating150313.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+                popup3_content += '<span class="sourceText">Source: NPS/Jennifer Jerret, <a href="https://www.nps.gov/yell/learn/photosmultimedia/sounds-bisoneating.htm" target="_blank">NPS</a>';
+             
+                popup3_content += '<img class="popupImage" alt=" Description of photo" src="https://www.nps.gov/yell/learn/photosmultimedia/images/ndh-yell-bison-gibbon_2.jpg?maxwidth=1200&maxheight=1200&autorotate=false">' ;
+                popup3_content += '<span class="sourceText">Source: NPS/Neal Herbert, <a href="https://www.nps.gov/yell/learn/photosmultimedia/sounds-bisoneating.htm" target="_blank"> NPS</a>';
+            
+            
+            var popup3 = new mapboxgl.Popup({ minWidth:'300px' })
+                .setHTML(popup3_content);
+            
+          
+          var popup4_content = '<h2>Press Play to Listen to San Francisco </h2><br>';
+                popup4_content += '<iframe width="100%" src="https://www.youtube.com/embed/sNq5W4Uo5Xs?si=yM-YRnZtreEdzGpC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+                popup4_content += '<span class="sourceText"> Source: Cozy Rain, <a href="https://www.youtube.com/watch?v=sNq5W4Uo5Xs" target="_blank"> YouTube </a>';
+            
+            var popup4 = new mapboxgl.Popup({ minWidth:'300px' })
+                .setHTML(popup4_content);
+            
+         /***  END POPUPS  ***/  
+         
+         /***  MARKERS  ***/
+         // markers go here //
+         
+            // Marker 1 - Portland
+            var marker1 = new mapboxgl.Marker({color:'385A5C'})
+                .setLngLat([-122.6788,45.5212]) // Portland 
+	        //add .setPopup here
+            // Marker 1 - Portland
+                .setPopup(popup1) 
+                .addTo(map);
+            marker1.getElement().style.cursor = 'pointer';
+
+            
+            // Marker 2 -  London 
+            var marker2 = new mapboxgl.Marker({color:'385A5C'})
+                .setLngLat([-0.1534307, 51.501223]) // London 
+            // Maker 2 - London
+                .setPopup(popup2) 
+                .addTo(map);
+            marker2.getElement().style.cursor = 'pointer';
+            
+            // Marker 3 - Yellowstone
+            var marker3 = new mapboxgl.Marker({color:'385A5C'})
+                .setLngLat([-110.74524187568,44.706216445069]) // Yellowstone
+            // Marker 3 - Yellowstone
+                .setPopup(popup3) 
+                .addTo(map);
+            marker3.getElement().style.cursor = 'pointer';
+        
+            // Marker 4 - SanFrancisco
+            var marker4 = new mapboxgl.Marker({color:'385A5C'})
+                .setLngLat([-122.4194, 37.7749]) // SanFrancisco
+            // Marker 4 - SanFrancisco
+                .setPopup(popup4) 
+                .addTo(map);
+            marker4.getElement().style.cursor = 'pointer';
+          
+          
+         /***  END MARKERS  ***/
+            
+         /***  LISTENERS  ***/
+            //listeners go here
+            
+            // Add a 'Listener' to the button element with the ID 'LondonButton'.
+            document.getElementById('LondonButton').addEventListener('click', function () {
+                map.jumpTo({
+                center: [-0.1534307, 51.501223], 
+                zoom: 11
+                });
+            });
+            
+            // Add a 'Listener' to the button element with the ID 'PortlandButton'.
+            document.getElementById('PortlandButton').addEventListener('click', function () {
+                map.jumpTo({
+                center:[-122.6788,45.5212], 
+                zoom: 9
+                });
+            });
+            
+            document.getElementById('YellowstoneButton').addEventListener('click', function () {
+                map.jumpTo({
+                center: [-110.74524187568,44.706216445069], 
+                zoom: 10
+                });
+            });
+          
+            document.getElementById('SanFranciscoButton').addEventListener('click', function () {
+                map.jumpTo({
+                center: [-122.4194, 37.7749], 
+                zoom: 10
+                });
+            });
+          
+         /***  END LISTENERS  ***/
+            
+            
+         //Next Button Function //
+            // Array of popups and corresponding locations
+            const popups = [popup1, popup2, popup3, popup4];
+            const locations = [
+                [-122.6788, 45.5212],       // Portland
+                [-0.1534307, 51.501223],    // London
+                [-110.74524187568, 44.706216445069], // Yellowstone
+                [-122.4194, 37.7749] // San Fran
+            ];
+            
+            let currentIndex = 0;
+            let currentPopup = null; // Track the currently open popup
+            let popupTimeout = null;
+                
+            document.getElementById('Next').addEventListener('click', function () {
+                // Close current popup if it's open
+                if (currentPopup) {
+                    currentPopup.remove();
+                }   
+                
+                // Fly to the next location
+                map.flyTo({ center: locations[currentIndex], zoom: 13 });
+             
+                // Open the corresponding popup and track it
+                currentPopup = popups[currentIndex].addTo(map);
+             
+                // Advance the index for next click
+                currentIndex = (currentIndex + 1) % popups.length;
+                
+            });
+            
+         // Change the cursor to a pointer when the mouse is over the places layer.
+            map.on('mouseenter', layerID, function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+          
+         // Change it back to a pointer when it leaves.
+            map.on('mouseleave', layerID, function () {
+                map.getCanvas().style.cursor = '';
+            });
+          
+          
+      </script>
+      
+  </body>
+    
+</html>
