@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Eugene Parks Project</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .mapboxgl-popup-content {
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      padding: 10px;
+      background: #fff;
+      color: #5F5374;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoibXNwYW5rcyIsImEiOiJjbTh6MG1zZmkwNzgwMmpvaG8wbWNwb3pvIn0.ne8NRgK1Ro_OLnlTFHDHcA';
+
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mspanks/cmb6whan400jz01swbafmfxck',
+      center: [-123.144372, 44.061881],
+      zoom: 11.1,
+      minZoom: 1,
+      maxBounds: [
+        [-123.5, 43.75],
+        [-122.75, 44.35]
+      ]
+    });
+
+    const formatKey = key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      anchor: 'bottom',
+      offset: 10
+    });
+
+    map.on('load', () => {
+      map.addSource('parks', {
+        type: 'vector',
+        url: 'mapbox://mspanks.77k5l8ei'
+      });
+
+      map.addLayer({
+        id: 'parks-fill-layer',
+        type: "fill",
+        source: 'parks',
+        'source-layer': 'Eugene_Area_Parks_-5915046336-cgr2n8',
+        paint: {
+          'fill-color': '#ffffff',
+          'fill-opacity': 0.3
+        }
+      });
+
+      map.addLayer({
+        id: 'parks-hover-highlight',
+        type: "fill",
+        source: 'parks',
+        'source-layer': 'Eugene_Area_Parks_-5915046336-cgr2n8',
+        paint: {
+          'fill-color': '#396533',
+          'fill-opacity': 0.6
+        },
+        filter: ['==', 'OBJECTID', -1]
+      });
+
+      map.on('mousemove', 'parks-fill-layer', (e) => {
+        if (!e.features.length) return;
+        const feature = e.features[0];
+        map.setFilter('parks-hover-highlight', ['==', 'OBJECTID', feature.properties.OBJECTID]);
+        map.getCanvas().style.cursor = 'pointer';
+
+        const props = feature.properties;
+        let popupContent = `<strong>${props.PARKNAME || props.MapLabel || 'Unnamed Park'}</strong><br/>`;
+        const excludeKeys = ['geometry', 'OBJECTID', 'PARKNAME', 'MapLabel'];
+        for (const key in props) {
+          if (props.hasOwnProperty(key) && !excludeKeys.includes(key)) {
+            const value = props[key];
+            if (value !== null && value !== undefined && value !== '') {
+              popupContent += `<p><strong>${formatKey(key)}:</strong> ${value}</p>`;
+            }
+          }
+        }
+
+        popup.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
+      });
+
+      map.on('mouseleave', 'parks-fill-layer', () => {
+        map.setFilter('parks-hover-highlight', ['==', 'OBJECTID', -1]);
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+      });
+
+      map.on('click', 'parks-fill-layer', (e) => {
+        if (!e.features.length) return;
+        const geometry = e.features[0].geometry;
+        const bounds = new mapboxgl.LngLatBounds();
+
+        if (geometry.type === 'Polygon') {
+          geometry.coordinates[0].forEach(coord => bounds.extend(coord));
+        } else if (geometry.type === 'MultiPolygon') {
+          geometry.coordinates.forEach(polygon => polygon[0].forEach(coord => bounds.extend(coord)));
+        }
+
+        map.fitBounds(bounds, { padding: 60, duration: 1000 });
+      });
+
+      // Fetch park list and send to container
+      setTimeout(() => {
+        const allFeatures = map.querySourceFeatures('parks', {
+          sourceLayer: 'Eugene_Area_Parks_-5915046336-cgr2n8'
+        });
+
+        const parkNames = Array.from(
+          new Set(
+            allFeatures
+              .map(f => f.properties.PARKNAME)
+              .filter(name => name && name.trim() !== '')
+          )
+        );
+
+        window.parent.postMessage({ type: 'parkList', parks: parkNames }, '*');
+      }, 1000);
+    });
+
+    // Message handler
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'search') {
+        const searchTerm = (event.data.query || '').trim().toLowerCase();
+        if (!searchTerm) return;
+
+        const allFeatures = map.querySourceFeatures('parks', {
+          sourceLayer: 'Eugene_Area_Parks_-5915046336-cgr2n8'
+        });
+
+        const matchedFeature = allFeatures.find(f => {
+          const name = (f.properties.PARKNAME || '').trim().toLowerCase();
+          return name.includes(searchTerm);
+        });
+
+        if (matchedFeature) {
+          popup.remove();
+          const geometry = matchedFeature.geometry;
+          let bounds;
+
+          if (geometry.type === 'Polygon') {
+            const coords = geometry.coordinates[0];
+            bounds = coords.reduce(
+              (b, coord) => b.extend(coord),
+              new mapboxgl.LngLatBounds(coords[0], coords[0])
+            );
+          } else if (geometry.type === 'MultiPolygon') {
+            const coords = geometry.coordinates[0][0];
+            bounds = coords.reduce(
+              (b, coord) => b.extend(coord),
+              new mapboxgl.LngLatBounds(coords[0], coords[0])
+            );
+          }
+
+          if (bounds) {
+            map.fitBounds(bounds, {
+              padding: { top: 60, bottom: 60, left: 100, right: 100 },
+              duration: 1000,
+              linear: false
+            });
+
+            map.setFilter('parks-hover-highlight', ['==', 'OBJECTID', matchedFeature.properties.OBJECTID]);
+
+            popup
+              .setLngLat(bounds.getCenter())
+              .setHTML(`<strong>${matchedFeature.properties.PARKNAME}</strong>`)
+              .addTo(map);
+          }
+        } else {
+          console.log("No matching park found.");
+        }
+      }
+
+      if (event.data && event.data.type === 'clearHighlight') {
+        map.setFilter('parks-hover-highlight', ['==', 'OBJECTID', -1]);
+      }
+
+      if (event.data && event.data.type === 'resetView') {
+        map.flyTo({
+          center: [-123.144372, 44.061881],
+          zoom: 11.1,
+          essential: true
+        });
+        popup.remove();
+        map.setFilter('parks-hover-highlight', ['==', 'OBJECTID', -1]);
+      }
+    });
+  </script>
+</body>
+</html>

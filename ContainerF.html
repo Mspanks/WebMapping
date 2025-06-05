@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Eugene Parks Project</title>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/js/foundation.js"></script>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" rel="stylesheet" />
+  <link href="Container.css" rel="stylesheet" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .search-results {
+      display: none;
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+      background: white;
+      padding-left: 0;
+      margin-top: 0.5rem;
+      position: absolute;
+      width: 100%;
+      z-index: 10;
+      font-family: Barlow;
+    }
+
+    .search-results li {
+      padding: 8px 10px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .search-results li:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="site-header">
+    <strong class="site-title">Eugene Parks</strong>
+  </div>
+
+  <div class="site-main grid-x has-content-open">
+    <!-- SEARCH -->
+      <div class="search-container cell medium-3 large-2">
+      <input type="text" placeholder="Search..." class="search" />
+      <ul class="search-results no-bullet"></ul>
+    </div>
+
+    <!-- MAP -->
+    <div class="map-container cell medium-auto large-order-2">
+      <iframe id="mapFrame" src="FinalP.html" title="Interactive Eugene Parks Map" width="100%" height="100%" style="border:0;" allowfullscreen></iframe>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar cell medium-3 large-2 large-order-1 show-for-medium">
+      <h5>Location Type</h5>
+      <ul>
+        <li><a class="content-link" href="#">All Parks</a></li>
+        <li>Lane County</li>
+        <li>City of Eugene</li>
+        <li>Bureau of Land Management</li>
+        <li>Other</li>
+      </ul>
+      <hr />
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content cell large-3 large-order-3">
+  <div class="content-close-button-container">
+    <a href="#" class="content-close-button">×</a>
+  </div>
+  <h2>Eugene Parks</h2>
+  <p>This map shows the many parks of Eugene. You will find that the parks are divided by who the land manager is for the specific parks.</p>
+  <p>The map is interactive which means you can click on it and move around as you desire. You can filter certain places by clicking on the legend.</p>
+      </div>
+  </div>
+
+  <div class="content-open-button-container">
+    <a href="#" class="content-open-button button">Show Info Panel</a>
+  </div>
+
+  <!-- INTERACTION SCRIPT -->
+  <script>
+    $(document).ready(function () {
+      $('.content-close-button').click(function () {
+        $('.content-close-button').hide();
+        $('.content').hide();
+        $('.site-main').removeClass('has-content-open');
+        $('.content-open-button').show();
+        window.dispatchEvent(new Event('resize'));
+      });
+
+      $('.content-link, .content-open-button').click(function () {
+        $('.content-close-button').show();
+        $('.content').show();
+        $('.site-main').addClass('has-content-open');
+        $('.content-open-button').hide();
+        window.dispatchEvent(new Event('resize'));
+      });
+    });
+  </script>
+
+  <!-- SEARCH HANDLING SCRIPT -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const iframe = document.getElementById('mapFrame');
+      const searchInput = document.querySelector('.search');
+      const ul = document.querySelector('.search-results');
+      let allParks = [];
+
+      // Receive park list from iframe
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'parkList') {
+          allParks = event.data.parks || [];
+        }
+      });
+
+      function updateSuggestions(query) {
+        const filtered = allParks.filter(name =>
+          name.toLowerCase().includes(query.toLowerCase())
+        );
+
+        ul.innerHTML = '';
+        ul.style.display = filtered.length > 0 ? 'block' : 'none';
+
+        filtered.forEach(name => {
+          const li = document.createElement('li');
+          li.textContent = name;
+          ul.appendChild(li);
+        });
+      }
+
+      searchInput.addEventListener('focus', () => {
+        const query = searchInput.value.trim();
+        updateSuggestions(query);
+        iframe.contentWindow.postMessage({ type: 'resetView' }, '*');
+      });
+
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+        updateSuggestions(query);
+      });
+
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const match = ul.querySelector('li');
+          if (match) {
+            searchInput.value = match.textContent;
+            sendToMap(match.textContent);
+            ul.innerHTML = '';
+            ul.style.display = 'none';
+          }
+        }
+      });
+
+      ul.addEventListener('click', (e) => {
+        if (e.target.tagName.toLowerCase() === 'li') {
+          const name = e.target.textContent;
+          searchInput.value = name;
+          sendToMap(name);
+          ul.innerHTML = '';
+          ul.style.display = 'none';
+        }
+      });
+
+      function sendToMap(name) {
+        iframe.contentWindow.postMessage({ type: 'search', query: name.toLowerCase() }, '*');
+      }
+    });
+  </script>
+</body>
+</html>

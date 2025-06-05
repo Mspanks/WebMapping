@@ -1,0 +1,222 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+/* Header */
+
+.site-header {
+  height: 4rem;
+  position: relative;
+  z-index: 2;
+  background-color: #396533;
+  box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
+  padding: 0 1rem;
+}
+
+.site-title {
+  font-size: 1.25rem;
+  line-height: 4rem;
+  color: White;
+ font-family: Barlow;
+}
+
+/* Main */
+.site-main {
+  position: relative;
+  z-index: 1;
+  height: calc(100vh - 4rem);
+}
+
+
+/* Search Container */
+.search-container {
+  position: relative;
+  z-index: 3;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0.25rem 0.25rem;
+}
+@media print, screen and (min-width: 40em) {
+  .search-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15rem;
+    height: 3.25rem;
+    overflow: visible;
+    background-color: #9cc47e;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1), -4px 0 0 rgba(0, 0, 0, 0.1);
+  }
+}
+@media screen and (min-width: 64em) {
+  .search-container {
+    right: auto;
+    left: 0;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1), 4px 0 0 rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Search Input */
+.search {
+  width: 100%;
+  padding: 0.5rem;
+  font-family: 'Barlow', sans-serif;
+  font-size: 1rem;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Search Results */
+.search-results {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  background: white;
+  padding-left: 0;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.search-results li {
+  padding: 8px 10px;
+  cursor: pointer;
+  list-style: none;
+  border-top: 1px solid #8683a0;
+}
+
+.search-results li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Optional smooth dropdown (if you toggle a class like `.show`) */
+/*
+.search-results {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.search-results.show {
+  display: block;
+  opacity: 1;
+}
+*/
+
+/* Map */
+.map-container {
+  height: 100%;
+    margin-top: 0;
+}
+@media screen and (min-width: 64em) {
+  .map-container {
+    height: 100%;
+      margin-top: 0;
+  }
+}
+.search-container {
+  top: 0;
+  margin: 0;
+}
+
+
+iframe {
+  width: 100%;
+  height: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+  z-index: 2;
+  padding: 1rem;
+  background-color: WhiteSmoke;
+}
+@media print, screen and (min-width: 40em) {
+  .sidebar {
+    margin-top: 3.25rem;
+    height: calc(60vh - 3.25rem);
+    overflow-y: auto;
+    box-shadow: -4px 0 0 0 rgba(0, 0, 0, 0.1);
+  }
+}
+@media screen and (min-width: 64em) {
+  .sidebar {
+    height: calc(100% - 3.25rem);
+    box-shadow: 4px 0 0 0 rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Content Close Button */
+.content-close-button-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.content-close-button {
+  width: 2rem;                  /* Equal width and height */
+  height: 2rem;
+  font-size: 1.5rem;
+    text-align: center;
+  color: #000;
+  background-color: #9cc47e;
+  border: none;                /* No border */
+  cursor: pointer;
+  display: flex;               /* Center text horizontally & vertically */
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 0.25rem;      /* Slight rounding, optional */
+  box-sizing: border-box;      /* Prevents padding from affecting size */
+}
+
+
+
+
+
+/* Content */
+.content {
+  padding: 1rem;
+  z-index: 3;
+}
+@media screen and (min-width: 64em) {
+  .content {
+    box-shadow: -4px 0 0 0 rgba(0, 0, 0, 0.1);
+    height: calc(100%);
+    overflow-y: auto;
+  }
+}
+
+/* When content is closed */
+@media print, screen and (min-width: 40em) {
+  .site-main:not(.has-content-open) .map-container,
+  .site-main:not(.has-content-open) .sidebar {
+    height: calc(100vh - 4rem);
+  }
+}
+
+/* Show Info Panel Button */
+.content-open-button-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.content-open-button {
+  display: none;
+  background-color: #9cc47e;
+  color: #000000;
+  border: none;
+}
+
+.content-open-button:hover {
+  background-color: #8683a0;
+  color: #000000;
+}
