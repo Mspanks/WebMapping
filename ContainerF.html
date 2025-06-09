@@ -7,127 +7,159 @@
   <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/js/foundation.js"></script>
-
   <link href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" rel="stylesheet" />
   <link href="Container.css" rel="stylesheet" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
+      /*Make everything Barlow*/
+    *, *::before, *::after {
+      font-family: 'Barlow', sans-serif !important;
     }
-
-    .search-results {
+      
+    /*CSS*/
+    #park-info-panel {
       display: none;
-      border: 1px solid #ccc;
-      max-height: 200px;
-      overflow-y: auto;
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 280px;
+      height: 100%;
       background: white;
-      padding-left: 0;
-      margin-top: 0.5rem;
-      position: absolute;
-      width: 100%;
-      z-index: 10;
-      font-family: Barlow;
+      z-index: 9999;
+      box-shadow: -4px 0 8px rgba(0,0,0,0.1);
+      padding: 1rem;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
     }
 
-    .search-results li {
-      padding: 8px 10px;
+    #park-info-panel.show {
+      display: block;
+    }
+
+    #park-info-panel button {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
       cursor: pointer;
-      list-style: none;
-    }
-
-    .search-results li:hover {
-      background-color: #f0f0f0;
     }
   </style>
 </head>
 
 <body>
+    
+    <!-- ADD TITLE -->
   <div class="site-header">
     <strong class="site-title">Eugene Parks</strong>
   </div>
-
   <div class="site-main grid-x has-content-open">
+      
     <!-- SEARCH -->
-      <div class="search-container cell medium-3 large-2">
-      <input type="text" placeholder="Search..." class="search" />
-      <ul class="search-results no-bullet"></ul>
+    <div class="search-container cell medium-3 large-2">
+        <label for="searchInput" class="sr-only">Search for a park</label>
+      <input
+    type="text"
+    id="searchInput"
+    class="search"
+    placeholder="Search..."
+             aria-label="Search for a park"
+             role="combobox"
+             aria-autocomplete="list"
+             aria-owns="searchResults"
+             aria-expanded="true"
+             />
+  <ul id="searchResults" class="search-results no-bullet" role="listbox" aria-label="Search suggestions"></ul>
     </div>
+
 
     <!-- MAP -->
     <div class="map-container cell medium-auto large-order-2">
-      <iframe id="mapFrame" src="FinalP.html" title="Interactive Eugene Parks Map" width="100%" height="100%" style="border:0;" allowfullscreen></iframe>
+      <iframe id="mapFrame" src="FinalP.html" title="Interactive Eugene Parks Map" width="100%" height="100%" style="border:0;" allowfullscreen,  aria-label="Map of Eugene parks" ></iframe>
     </div>
 
     <!-- SIDEBAR -->
     <div class="sidebar cell medium-3 large-2 large-order-1 show-for-medium">
-      <h5>Location Type</h5>
-      <ul>
-        <li><a class="content-link" href="#">All Parks</a></li>
-        <li>Lane County</li>
-        <li>City of Eugene</li>
-        <li>Bureau of Land Management</li>
-        <li>Other</li>
-      </ul>
-      <hr />
+        <button
+        id="resetMapBtn"
+        class="button reset-map-button"
+        aria-label="Reset map view"
+        role="button"
+        >Reset Map</button>
+         <!-- Legend create/ items in legend -->
+      <div class="LegendContainer">
+        <div class="Legend"><h5>Legend</h5></div>
+        <div class="legendItem"><span class="Parks" style="color: #9cc47e;">&#11044;</span><span class="layerDescription">Parks</span></div>
+        <div class="legendItem"><span class="Recreational" style="color: #c6b5b5;">&#11044;</span><span class="layerDescription">Recreational</span></div>  
+        <div class="legendItem"><span class="Natural" style="color: #b7b7b7;">&#11044;</span><span class="layerDescription">Forest</span></div>
+        <div class="legendItem"><span class="Industrial" style="color: #b0b6d1;">&#11044;</span><span class="layerDescription">Industrial</span></div>            
+        <div class="legendItem"><span class="Water" style="color: #79bcec;">&#11044;</span><span class="layerDescription">Water</span></div> 
+        <div class="legendItem"><span class="Buildings" style="color: #dcdcd5;">&#11044;</span><span class="layerDescription">Buildings</span></div>           
+      </div>
     </div>
 
-    <!-- CONTENT -->
-
-    <div class="content cell large-3 large-order-3">
-  <div class="content-close-button-container">
-    <a href="#" class="content-close-button">×</a>
-  </div>
-  <h2>Eugene Parks</h2>
-  <p>This map shows the many parks of Eugene. You will find that the parks are divided by who the land manager is for the specific parks.</p>
-  <p>The map is interactive which means you can click on it and move around as you desire. You can filter certain places by clicking on the legend.</p>
+    <!-- Info Panel -->
+    <div id="main-info-panel" class="content cell large-3 large-order-3">
+      <div class="content-close-button-container">
+        <a href="#" class="content-close-button">×</a>
       </div>
-  </div>
-
-  <div class="content-open-button-container">
+      <div id="intro-text">
+        <h2>Eugene Parks</h2>
+        <p>This map shows the many parks of Eugene. You will find that the parks are divided by who the land manager is for the specific parks.</p>
+        <p>The map is interactive which means you can click on it and move around as you desire. You can filter certain places by clicking on the legend.</p>
+      </div>
+     </div>
+    </div>
+    
+    <!-- Add button to get rid of info panel -->
+    <div class="content-open-button-container">
     <a href="#" class="content-open-button button">Show Info Panel</a>
-  </div>
+    </div>
 
-  <!-- INTERACTION SCRIPT -->
+    <!-- SIDEBAR INFO PANEL & close button -->
+    <div id="park-info-panel">
+        <button onclick="hideParkInfo()">×</button>
+        <div id="park-info-content"></div>
+    </div>
+
+  <!-- SCRIPT -->
   <script>
     $(document).ready(function () {
       $('.content-close-button').click(function () {
         $('.content-close-button').hide();
-        $('.content').hide();
-        $('.site-main').removeClass('has-content-open');
+        $('.content').addClass('is-hidden');
+        $('.site-main').removeClass('has-content-open').addClass('no-content');
         $('.content-open-button').show();
         window.dispatchEvent(new Event('resize'));
       });
 
       $('.content-link, .content-open-button').click(function () {
         $('.content-close-button').show();
-        $('.content').show();
-        $('.site-main').addClass('has-content-open');
+        $('.content').removeClass('is-hidden');
+        $('.site-main').removeClass('no-content').addClass('has-content-open');
         $('.content-open-button').hide();
         window.dispatchEvent(new Event('resize'));
       });
     });
-  </script>
 
-  <!-- SEARCH HANDLING SCRIPT -->
-  <script>
+    let allParks = [];
+
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'parkList') {
+        allParks = event.data.parks || [];
+      }
+
+      if (event.data && event.data.type === 'parkDetails') {
+        showParkInfo(event.data.data);
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       const iframe = document.getElementById('mapFrame');
       const searchInput = document.querySelector('.search');
       const ul = document.querySelector('.search-results');
-      let allParks = [];
-
-      // Receive park list from iframe
-      window.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'parkList') {
-          allParks = event.data.parks || [];
-        }
-      });
 
       function updateSuggestions(query) {
         const filtered = allParks.filter(name =>
@@ -181,6 +213,525 @@
         iframe.contentWindow.postMessage({ type: 'search', query: name.toLowerCase() }, '*');
       }
     });
+
+    function showParkInfo(props) {
+      const panel = document.getElementById('park-info-panel');
+      const content = document.getElementById('park-info-content');
+      const mainInfo = document.getElementById('main-info-panel');
+
+      if (mainInfo) mainInfo.style.display = 'none';
+        
+       //Park Images in popup//
+      const parkImages = {
+"Acorn": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1678%5c1679%2fABP_pres_trail_bright_paths_ahead_201308071358348210.jpg",
+"Alton Baker": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1678%5c1679%2fABP_pres_trail_bright_paths_ahead_201308071358348210.jpg",
+"Amazon Park": "https://www.eugene-or.gov/ImageRepository/Document?documentID=67959",
+"Amazon Headwaters": "https://images.alltrails.com/eyJidWNrZXQiOiJhc3NldHMuYWxsdHJhaWxzLmNvbSIsImtleSI6InVwbG9hZHMvcGhvdG8vaW1hZ2UvMzA2NTU4OTgvNDgxYjVkOGY5MjY5ZDQ2ZTM4YzU0NDhlYTVlZjM4ODguanBnIiwiZWRpdHMiOnsidG9Gb3JtYXQiOiJ3ZWJwIiwicmVzaXplIjp7IndpZHRoIjoyMDQ4LCJoZWlnaHQiOjIwNDgsImZpdCI6Imluc2lkZSJ9LCJyb3RhdGUiOm51bGwsImpwZWciOnsidHJlbGxpc1F1YW50aXNhdGlvbiI6dHJ1ZSwib3ZlcnNob290RGVyaW5naW5nIjp0cnVlLCJvcHRpbWlzZVNjYW5zIjp0cnVlLCJxdWFudGlzYXRpb25UYWJsZSI6M319fQ==",
+"Acorn": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78587",
+"Andrea Ortiz Park": "https://www.eugene-or.gov/ImageRepository/Document?documentID=59991",
+"Arrowhead": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78381",
+"Ascot": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%2f00000000-0000-0000-0000-000000000000%2f1586%2f1607%2fsoftball1-small_201305081901567795.jpg",
+"Awbrey": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%2f00000000-0000-0000-0000-000000000000%2f1586%2f1604%2fawbrey.park.fall-small_201305081901567795.jpg",
+"Berkeley": "https://www.eugene-or.gov/ImageRepository/Document?documentID=64796",
+"Bertelson Nature Park": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1696%2fBertelsenNatureParkStewartPond_201308071758415195.jpg",
+"Bethel Community Park": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%2fbethel03_201308071347264645.jpg",
+"Black Oak Basin": "https://www.eugene-or.gov/ImageRepository/Document?documentID=68035",
+"Bobolink": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fDocuments%5c2246%5c3068%5c3077%5c3193%2fbobolink1-500.jpg",
+"Bond Lane": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78379",
+"Blanton Ridge": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%2f00000000-0000-0000-0000-000000000000%2f1586%2f1588%2f____Ridgeline+Park+System_201305081901567795.jpg",
+"Cal Young Sports Park": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%2fcalyoungYSP-325_201311151804024535.jpg",
+"Candlelight": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fCandlelightPark-350_201312111805214782.jpg",
+"Charnel Mulligan": "https://www.eugene-or.gov/ImageRepository/Document?documentID=34641",
+"Chase Commons": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fChaseCommons-325_201312121638262413.jpg",
+"Churchill Sports Park": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%2fchurchill-325_201311151822436241.jpg",
+"Coryell Ridge": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78377",
+"Country Lane": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fCountryLanePark2-325_201312121738313187.jpg",
+"Coyote Prairie": "https://www.eugene-or.gov/ImageRepository/Document?documentID=44484",
+"Creekside": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fCreekside1_201307241613073829.jpg",
+"Crescent": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fCrescentPark-325_201312121805281988.jpg",
+"Crest Heights": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1698%2fCrestHeights1_201308081302101417.jpg",
+"Delta Ponds": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78102",
+"Downtown Riverfront Park": "https://www.eugene-or.gov/ImageRepository/Document?documentID=67978",
+"Dragonfly Bend": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1699%2fDragonflyBendView_201308081637591186.jpg",
+"Echo Hollow Pool": "https://www.eugene-or.gov/ImageRepository/Document?documentID=67412",
+"Edgewood": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1700%2fEdgewoodScene_201308081755514115.jpg",
+"Empire Pond": "https://www.eugene-or.gov/ImageRepository/Document?documentID=68033",
+"Fairmount": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2ffairmount-kids2_201312121820258821.jpg",
+"Ferndale": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Ferndale-Park.jpg",
+"Friendly": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fFriendlyPark_201310291113532584.jpg",
+"Golden Gardens": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%2fGoldenGardensSunrise-c-325_201311201622403395.jpg",
+"Garfield": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78584",
+"Gilbert": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fGilbertPark-325_201312181306556916.jpg",
+"Gilham": "http://www.eugene-or.gov/images/Facilities/7/Gilham%20Park.png",
+"Gillespie Butte": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1702%2fGillespieButteOakSavanna_201308081819535642.jpg",
+"Glen Oak": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%2fGlenOakPark_201308121817303216.jpg",
+"Grasshopper Meadows": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fGrasshopperMeadow-325_201401101807060800.jpg",
+"Gudukut": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1706%2fGudukutPacificChorusFrog_201308221249041471.png",
+"Hawkins Heights": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78585",
+"Hendricks": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1678%5c1734%2fHendricksBench_201309061831450535.jpg",
+"Hileman Landing": "https://cdnsm5-hosted.civiclive.com/UserFiles/Servers/Server_3585797/Banner/874576/55077b0d-f2e6-4d00-81a2-2b720ad57391.jpeg",
+"Irwin": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fIrwin-350_201401131355251977.png",
+"Jefferson": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78586",
+"Kincaid": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fKincaid-325_201401131613476571.jpg",
+"Lafferty": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fLaffertyPark-325_201401131646232321.jpg",
+"Lark": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fLarkPark-325_201401141331127946.jpg",
+"Laurel Hill": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2flaurelhill2-325_201401281217423508.jpg",
+"Laurelwood Golf Course": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1678%2fLaurelwoodGC1-325_201311121137315665.jpg",
+"Lincoln School": "https://www.eugene-or.gov/ImageRepository/Document?documentID=76026",
+"Lone Oak": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fLoneOakPark-360_201401281316182796.jpg",
+"Luk-Wah Prairie": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%2fTsal_Luk-Wah1_201308131224508410.jpg",
+"Mangan": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fManganPark-350_201401281350372302.jpg",
+"Marche Chase": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fMarcheChasePark1-360_201401301048374020.jpg",
+"Martin Luther King Jr.": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fMartinLutherKingJrPark1-360_201401301106447840.jpg",
+"Mattie Reynolds": "https://ehq-production-us-california.imgix.net/8e99a9b5c3a7d7b7f21e4de60a1590a0047dc1a0/original/1650332179/b3b6dac8cf39843364cc5f01ef840abd_blob?1650332179-unsplash--undefined&auto=compress%2Cformat&w=1080",
+"Maurie Jacobs": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1678%5c1763%2fMaurieJacobs6-325_201311121248231053.jpg",
+"Meadowlark Prairie": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1705%2fMeadowlarkPrairie-scenic_201308131314109711.jpg",
+"Melvin Miller": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%2fMelvinMiller04_201308131413216955.jpg",
+"Milton": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fMiltonParkSlide-350_201401301122164462.jpg",
+"Monroe": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fP0010158_201307191148199282.JPG",
+"Moon Mountain": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Moon-Mountain.jpg",
+"Mt. Baldy": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fDocuments%5c2246%5c3068%5c3077%5c3203%2fmt.baldy.web.jpg",
+"Oakmont": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2foakmont03-325_201404151755131436.jpg",
+"Osprey Hollow": "https://www.eugene-or.gov/ImageRepository/Document?documentID=68034",
+"Owen Rose Garden": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%2f00000000-0000-0000-0000-000000000000%2f1586%2f1607%2f____friend_roses_thumb_201305081901567795.jpg",
+"Park Blocks": "https://www.eugene-or.gov/ImageRepository/Document?documentID=27256",
+"Petersen": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%2fPetersenBarn06-325_201311201802552447.jpg",
+"Prefontaine Memorial": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1678%2fPrefontaineMemorial_201311121642436603.jpg",
+"Rasor": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%2f00000000-0000-0000-0000-000000000000%2f1586%2f1588%2fRasorParkBench350_201305081901567795.jpg",
+"River House": "https://www.eugene-or.gov/ImageRepository/Document?documentID=73049",
+"Rosetta Place": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fRosettaPark09-07-325_201404151808209349.jpg",
+"Ruby": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fRubyPark-325_201404151829580140.jpg",
+"Scobert Gardens": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fscobert3-325_201404151838044890.jpg",
+"Shadow Wood": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fShadowWood09-45-325_201404151846547770.jpg",
+"Shasta Ball Fields": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%2fShastaBallfields02-325_201311201818561007.jpg",
+"Sheldon": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%2fgirls_soccer_SheldonYSP-325_201311201829037804.jpg",
+"Shelton McMurphey Johnson House": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%2f00000000-0000-0000-0000-000000000000%2f1586%2f1594%2f_SMJH_201305081901567795.jpg",
+"Skinner Butte": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1690%5c1776%2fSBP-overlook-plaque-325_201312021644281734.jpg",
+"Skyview": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fSkyviewPark-325_201404151854578770.jpg",
+"Sladden": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fSladdenDiscGolfBasket-350_201405061059485544.jpg",
+"Sorrel Pond": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%5c1710%2fSorrelPond1_201308301341462149.jpg",
+"Spencer Butte": "https://www.eugene-or.gov/ImageRepository/Document?documentID=76645",
+"State Street": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fStateStreet-teeter-swings-bars-350_201405061121522588.jpg",
+"Terra Linda": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fTerraLindaPark-325_201405061303430402.jpg",
+"Trainsong": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fTrainsongSkatepark-325_201405061353305003.jpg",
+"Tsal Luk-Wah": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1695%2fTsal_Luk-Wah1_201308131224508410.jpg",
+"Tugman": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Tugman-Park.jpg",
+"Umso Park": "https://www.eugene-or.gov/Areas/Facilities/Assets/Images/ImageUnavailableBig.jpg",
+"University": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fUniversityParkFrisbee-350_201405061621140981.jpg",
+"Videra": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2fVideraPark-350_201405071754479891.jpg",
+"Walnut Grove": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%2f2009_WalnutGrove01-350_201405061653222634.jpg",
+"Warbling Creek": "https://www.eugene-or.gov/ImageRepository/Document?documentID=78581",
+"Washburne": "https://www.eugene-or.gov/ImageRepository/Path?filePath=%2fdocuments%5c00000000-0000-0000-0000-000000000000%5c1586%5c1682%5c1856%2fWashburnePerformanceArea-350_201405071156300264.jpg",
+"Washington": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Washington-Park.jpg",
+"Washington/Jefferson": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Washington-Jefferson-Park.jpg",
+"Wayne Morse Family Farm": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Wayne-Morse-Family-Farm.jpg",
+"Wayside Park": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Wayside-Park.jpg",
+"Wendover": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Wendover-Park.jpg",
+"West Bank": "https://www.eugene-or.gov/Portals/0/Images/Facilities/West-Bank-Park.jpg",
+"West University": "https://www.eugene-or.gov/Portals/0/Images/Facilities/West-University-Park.jpg",
+"Westmoreland": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Westmoreland-Park.jpg",
+"Whitely Landing": "https://lanecountyparks.org/wp-content/uploads/2018/06/Whitely-Landing.jpg",
+"Wild Iris Ridge": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Wild-Iris-Ridge.jpg",
+"Wildwood": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Wildwood-Park.jpg",
+"Willakenzie": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Willakenzie-Park.jpg",
+"Willamette Daisy Meadow": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Willamette-Daisy-Meadow.jpg",
+"Willis": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Willis-Park.jpg",
+"Willow Corner": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Willow-Corner-Park.jpg",
+"Willow Creek Natural Area": "https://www.eugene-or.gov/Portals/0/Images/Facilities/Willow-Creek-Natural-Area.jpg",
+        };
+      //Park Links in popup//
+      const parkLinks = {
+"A-2 Channel": "https://engage.eugene-or.gov/goldengardens",  
+"A-3 - Seneca to Wallis": "https://mapping.eugene-or.gov/datasets/eugene-area-parks",  
+"Acorn": "https://www.eugene-or.gov/Facilities/Facility/Details/Acorn-Park-71",  
+"Alton Baker": "https://www.eugene-or.gov/Facilities/Facility/Details/Alton-Baker-Park-29",  
+"Amazon Corridor": "https://www.eugene-or.gov/Facilities/Facility/Details/17",  
+"Amazon Headwaters": "https://www.eugene-or.gov/Facilities/Facility/Details/Amazon-Headwaters-Park-150",  
+"Amazon Park": "https://www.eugene-or.gov/Facilities/Facility/Details/Amazon-Park-30",  
+"Amazon Parkway": "https://www.eugene-or.gov/Facilities/Facility/Details/18",  
+"Andrea Ortiz Park": "https://www.eugene-or.gov/Facilities/Facility/Details/Andrea-Ortiz-Park-77",  
+"Antis Oaks": "https://www.eugene-or.gov/Facilities/Facility/Details/Antis-Oaks-Park-79",  
+"Armitage": "https://www.lanecountyor.gov/government/county_departments/public_works/parks/our_parks/armitage_park",
+"Arrowhead": "https://www.eugene-or.gov/Facilities/Facility/Details/Arrowhead-Park-80",  
+"Ascot": "https://www.eugene-or.gov/Facilities/Facility/Details/Ascot-Park-81",  
+"Awbrey": "https://www.eugene-or.gov/Facilities/Facility/Details/Awbrey-Park-82",  
+"Berkeley": "https://www.eugene-or.gov/Facilities/Facility/Details/Berkeley-Park-74",  
+"Bertelson Nature Park": "https://www.eugene-or.gov/Facilities/Facility/Details/Bertelson-Park-85",  
+"Bethel Community Park": "https://www.eugene-or.gov/Facilities/Facility/Details/Bethel-Community-Park-33",  
+"Black Oak Basin": "https://www.eugene-or.gov/Facilities/Facility/Details/Black-Oak-Basin-169",
+"Blanton Ridge": "https://www.eugene-or.gov/Facilities/Facility/Details/Blanton-Ridge-151",
+"Bloomberg": "https://www.eugene-or.gov/Facilities/Facility/Details/Bloomberg-Park-152",
+"Bobolink": "https://www.eugene-or.gov/Facilities/Facility/Details/Bobolink-Park-149",
+"Bond Lane": "https://www.eugene-or.gov/Facilities/Facility/Details/Bond-Lane-Park-38",
+"Bramblewood": "https://www.eugene-or.gov/Facilities/Facility/Details/Bramblewood-Park-39",
+"Brewer": "https://www.eugene-or.gov/Facilities/Facility/Details/Brewer-Park-95",  
+"Broadway Plaza": "https://www.eugene-or.gov/Public-Works/Parks-and-Open-Space/Facilities#Broadway-Plaza",  
+"Cal Young Sports Park": "https://www.eugene-or.gov/Facilities/Facility/Details/Cal-Young-Sports-Park-40",  
+"Candlelight": "https://www.eugene-or.gov/Facilities/Facility/Details/Candlelight-Park-96",  
+"Charnel Mulligan": "https://www.eugene-or.gov/Facilities/Facility/Details/Charnel-Mulligan-Park-51",
+"Chase Commons": "https://www.eugene-or.gov/Facilities/Facility/Details/Chase-Commons-Park-97",  
+"Churchill Sports Park": "https://www.eugene-or.gov/Facilities/Facility/Details/Churchill-Sports-Park-41",  
+"Coryell Ridge": "https://www.eugene-or.gov/Facilities/Facility/Details/Coryell-Ridge-154",
+"Country Lane": "https://www.eugene-or.gov/Facilities/Facility/Details/Country-Lane-Park-153",
+"Coyote Prairie": "https://www.eugene-or.gov/497/Wetland-Mitigation-Bank",
+"Creekside": "https://www.eugene-or.gov/Facilities/Facility/Details/Creekside-Park-148",
+"Crescent": "https://www.eugene-or.gov/Facilities/Facility/Details/Crescent-Park-98",  
+"Crest Heights": "https://www.eugene-or.gov/Facilities/Facility/Details/Crest-Heights-Park-147",
+"Danebo Pond": "https://www.eugene-or.gov/Facilities/Facility/Details/Danebo-Pond-146",
+"Delta Ponds": "https://www.eugene-or.gov/Facilities/Facility/Details/Delta-Ponds-34",  
+"Downtown Riverfront Park": "https://www.eugene-or.gov/3506/Downtown-Riverfront",  
+"Dragonfly Bend": "https://www.eugene-or.gov/Facilities.aspx?Page=detail&RID=89",  
+"East Bank": "https://www.eugene-or.gov/1728/Whilamut-Natural-Area",  
+"Eastgate Woodlands": "https://www.eugene-or.gov/1728/Whilamut-Natural-Area",  
+"Echo Hollow Pool": "https://www.eugene-or.gov/Facilities/Facility/Details/Echo-Hollow-Pool-54",  
+"Edgewood": "https://www.eugene-or.gov/Facilities.aspx?Page=detail&RID=94",  
+"Emerald Park": "https://www.eugenecascadescoast.org/listing/emerald-skatepark/7645/",  
+"Empire Pond": "https://www.eugene-or.gov/Facilities/Facility/Details/Empire-Pond-167",  
+"Erin Noble Headwaters": "https://www.eugene-or.gov/Facilities/Facility/Details/Erin-Noble-Headwaters-170",
+ "Filbert Meadows": "https://www.eugene-or.gov/Facilities/Facility/Details/Filbert-Meadows-Park-105",
+"Fairmount": "https://www.eugene-or.gov/Facilities/Facility/Details/Fairmount-Park-98",
+"Fern Ridge": "https://www.eugene-or.gov/Facilities/Facility/Details/Fern-Ridge-Trail-133",
+"Friendly": "https://www.eugene-or.gov/Facilities/Facility/Details/Friendly-Park-36",
+"Garfield": "https://www.eugene-or.gov/Facilities/Facility/Details/Garfield-Park-99",
+"Gilbert": "https://www.eugene-or.gov/Facilities/Facility/Details/Gilbert-Park-100",
+"Gilham": "https://www.eugene-or.gov/Facilities/Facility/Details/Gilham-Park-101",
+"Gillespie Butte": "https://www.eugene-or.gov/Facilities/Facility/Details/Gillespie-Butte-102",
+"Glen Oak": "https://www.eugene-or.gov/Facilities/Facility/Details/Glen-Oak-Park-103",
+"Golden Gardens": "https://www.eugene-or.gov/Facilities/Facility/Details/Golden-Gardens-Park-37",
+"Grasshopper Meadows": "https://www.eugene-or.gov/Facilities/Facility/Details/Grasshopper-Meadows-Park-106",
+"Greenhill to Fern Ridge": "https://www.eugenecascadescoast.org/listing/fern-ridge-path/6136/",
+"Gudukut": "https://www.eugene-or.gov/Facilities/Facility/Details/Gudukut-Natural-Area-108",
+"Hawkins Heights": "https://www.eugene-or.gov/Facilities/Facility/Details/Hawkins-Heights-Park-109",
+"Hendricks": "https://www.eugene-or.gov/Facilities/Facility/Details/Hendricks-Park-38",
+"Hileman Landing": "https://www.lanecountyor.gov/government/county_departments/public_works/parks/our_parks/hileman_park",
+"Irwin": "https://www.eugene-or.gov/Facilities/Facility/Details/Irwin-Park-110",
+"Jefferson": "https://www.eugene-or.gov/Facilities/Facility/Details/Jefferson-Park-111",
+"Kincaid": "https://www.eugene-or.gov/Facilities/Facility/Details/Kincaid-Park-112",
+"Knickerbocker": "https://www.mtbproject.com/trail/7048132/knickerbocker-bridge-connector",
+"Lafferty": "https://www.eugene-or.gov/Facilities/Facility/Details/Lafferty-Park-114",  
+"Lark": "https://www.eugene-or.gov/Facilities/Facility/Details/Lark-Park-91",  
+"Laurel Hill": "https://www.eugene-or.gov/Facilities/Facility/Details/Laurel-Hill-Park-115",  
+"Laurelwood Golf Course": "https://www.eugene-or.gov/Facilities/Facility/Details/Laurelwood-Golf-Course-16",  
+"Lincoln School": "https://www.eugene-or.gov/Facilities/Facility/Details/Lincoln-School-116",  
+"Lone Oak": "https://www.eugene-or.gov/Facilities/Facility/Details/Lone-Oak-Park-117",  
+"Luk-Wah Prairie": "https://www.eugene-or.gov/Facilities/Facility/Details/Luk-Wah-Prairie-119",  
+"Mangan": "https://www.eugene-or.gov/Facilities/Facility/Details/Mangan-Park-120",  
+"Marche Chase": "https://www.eugene-or.gov/Facilities/Facility/Details/Marche-Chase-Park-121",
+"Martin Luther King Jr.": "https://www.eugene-or.gov/Facilities/Facility/Details/Martin-Luther-King-Jr-Park-122",
+"Mattie Reynolds": "https://engage.eugene-or.gov/reynolds",
+"Maurie Jacobs": "https://www.eugene-or.gov/Facilities/Facility/Details/Maurie-Jacobs-Park-39",
+"Meadowlark Prairie": "https://www.eugene-or.gov/Facilities/Facility/Details/Meadowlark-Prairie-124",
+"Melvin Miller": "https://www.eugene-or.gov/Facilities/Facility/Details/Melvin-Miller-Park-125",
+"Milton": "https://www.eugene-or.gov/Facilities/Facility/Details/Milton-Park-126",
+"Monroe": "https://www.eugene-or.gov/Facilities/Facility/Details/Monroe-Park-40",
+"Moon Mountain": "https://www.eugene-or.gov/Facilities/Facility/Details/Moon-Mountain-128",
+"Mt. Baldy": "https://www.eugene-or.gov/Facilities/Facility/Details/Mt-Baldy-Park-41",
+"Murray Hill": "https://www.eugene-or.gov/Facilities/Facility/Details/Murray-Hill-Park-156",  
+"Nolan Mitigation Site": "https://www.eugene-or.gov/Facilities/Facility/Details/Nolan-Mitigation-Site-157",  
+"North Bank": "https://www.eugene-or.gov/Facilities/Facility/Details/North-Bank-Park-158",  
+"North Eugene High School: turf field": "https://nehs.4j.lane.edu/",  
+"Oak Hill": "https://www.blm.gov/sites/default/files/documents/files/EUG_WestEugeneWetlands_map.pdf",  
+"Oak Patch East": "https://www.eugene-or.gov/DocumentCenter/View/28711/Southwest-Eugene-Neighborhood-Report",  
+"Oak Patch West": "https://www.eugene-or.gov/DocumentCenter/View/28711/Southwest-Eugene-Neighborhood-Report",  
+"Oakmont": "https://www.eugene-or.gov/Facilities/Facility/Details/Oakmont-Park-163",  
+"Osprey Hollow": "https://www.eugene-or.gov/Facilities/Facility/Details/Osprey-Hollow-168",  
+"Owen Rose Garden": "https://www.eugene-or.gov/Facilities/Facility/Details/Owen-Rose-Garden-124",
+"Park Blocks": "https://www.eugene-or.gov/3257/Park-Blocks",  
+"Petersen": "https://www.eugene-or.gov/Facilities/Facility/Details/Petersen-Park-44",  
+"Prefontaine Memorial": "https://www.eugene-or.gov/3691/Prefontaine-Memorial",  
+"Rasor": "https://www.eugene-or.gov/Facilities/Facility/Details/Rasor-Butte-Park-45",  
+"Ribbon Trail": "https://www.eugene-or.gov/DocumentCenter/View/72713/Ridgeline-Ribbon-Trail-South",  
+"River House": "https://www.eugene-or.gov/749/Outdoor",  
+"River Road Annex": "https://www.rrpark.org/river-road-annex-1055-river-road",  
+"Riverloop": "https://www.eugene-or.gov/DocumentCenter/View/62310/Ruth-Bascom-Riverbank-Path-System",  
+"Rosetta Place": "https://www.eugene-or.gov/Facilities/Facility/Details/41",
+"Ruby": "https://www.eugene-or.gov/Facilities/Facility/Details/42",
+"Santa Clara": "https://www.eugene-or.gov/facilities/facility/details/Santa-Clara-Community-Park-163",
+"Scobert Gardens": "https://www.eugene-or.gov/Facilities/Facility/Details/43",
+"Shadow Wood": "https://www.eugene-or.gov/Facilities/Facility/Details/47",
+"Shasta Ball Fields": "https://www.eugene-or.gov/Facilities/Facility/Details/50",
+"Sheldon": "https://www.eugene-or.gov/Facilities/Facility/Details/54",
+"Shelton McMurphey Johnson House": "https://www.eugene-or.gov/facilities/Facility/Details/132",
+"Skinner Butte": "https://www.eugene-or.gov/facilities/facility/details/skinner-butte-park-55",
+"Skyview": "https://www.eugene-or.gov/Facilities/Facility/Details/65",
+"Sladden": "https://www.eugene-or.gov/Facilities/Facility/Details/66",
+"Sorrel Pond": "https://www.eugene-or.gov/Facilities/Facility/Details/67",
+"South Eugene High School: turf field": "https://www.eugene-or.gov/DocumentCenter/View/28710/Southeast-Eugene-Neighborhood-Report?bidId=",
+"South Eugene Meadows": "https://www.eugene-or.gov/facilities/facility/details/South-Eugene-Meadows-157",
+"Spencer Butte": "https://www.eugene-or.gov/facilities/facility/details/spencerbuttepark-158",
+"State Street": "https://www.eugene-or.gov/Facilities/Facility/Details/69",
+"Striker Field": "https://www.eugene-or.gov/Facilities/Facility/Details/71",
+"Tandy Turn": "https://www.eugene-or.gov/Facilities/Facility/Details/73",
+"Terra Linda": "https://www.eugene-or.gov/Facilities/Facility/Details/74",
+"Townsend Woods": "https://rivers2ridges.org/wp-content/uploads/2018/01/R2R-2017-Annual-Report-FINAL.pdf",
+"Trainsong": "https://www.eugene-or.gov/Facilities/Facility/Details/76",
+"Trude Kaufman Senior Center": "https://www.eugene-or.gov/DocumentCenter/View/4646/Senior-Program-Service-Profile-FY10-?bidId=",
+"Tsal Luk-Wah": "https://www.eugene-or.gov/Facilities/Facility/Details/Tsal-Luk-Wah-134",
+"Tugman": "https://www.eugene-or.gov/Facilities/Facility/Details/81",
+"Umso Park": "https://www.eugene-or.gov/Facilities/Facility/Details/71",
+"University": "https://www.eugene-or.gov/Facilities/Facility/Details/86",
+"Videra": "https://www.eugene-or.gov/Facilities/Facility/Details/122",
+"Walnut Grove": "https://www.eugene-or.gov/Facilities/Facility/Details/95",
+"Warbling Creek": "https://www.eugene-or.gov/Facilities/Facility/Details/Warbling-Creek-166",
+"Washburne": "https://www.eugene-or.gov/Facilities/Facility/Details/96",
+"Washington": "https://www.eugene-or.gov/Facilities/Facility/Details/100",
+"Washington/Jefferson": "https://www.eugene-or.gov/Facilities/Facility/Details/Washington-Jefferson-Park-141",
+"Wayne Morse Family Farm": "https://www.eugene-or.gov/Facilities/Facility/Details/Wayne-Morse-Family-Farm-142",
+"Wayside Park": "https://www.eugene-or.gov/Facilities/Facility/Details/Wayside-Park-143",
+"Wendover": "https://www.eugene-or.gov/Facilities/Facility/Details/Wendover-Park-144",
+"West Bank": "https://www.eugene-or.gov/Facilities/Facility/Details/West-Bank-Park-145",
+"West University": "https://www.eugene-or.gov/Facilities/Facility/Details/West-University-Park-146",
+"Westmoreland": "https://www.eugene-or.gov/Facilities/Facility/Details/Westmoreland-Park-147",
+"Whitely Landing": "https://lanecountyparks.org/parks/whitely-landing/",  
+"Wild Iris Ridge": "https://www.eugene-or.gov/Facilities/Facility/Details/Wild-Iris-Ridge-148",
+"Wildwood": "https://www.eugene-or.gov/Facilities/Facility/Details/Wildwood-Park-149",
+"Willakenzie": "https://www.eugene-or.gov/Facilities/Facility/Details/Willakenzie-Park-151",
+"Willamette Daisy Meadow": "https://www.eugene-or.gov/Facilities/Facility/Details/Willamette-Daisy-Meadow-152",
+"Willis": "https://www.eugene-or.gov/Facilities/Facility/Details/Willis-Park-153",
+"Willow Corner": "https://www.eugene-or.gov/Facilities/Facility/Details/Willow-Corner-Park-154",
+"Willow Creek Natural Area": "https://www.eugene-or.gov/Facilities/Facility/Details/Willow-Creek-Natural-Area-155",
+
+};
+      //Park Descritions in popup// 
+      const parkDescriptions = {
+  "A-2 Channel": "A restored river channel designed to reduce flooding and support wildlife along Delta Ponds. It’s part of the stormwater and habitat conservation efforts in the wetlands area. (Source: City of Eugene Golden Gardens Master Plan)",
+  "A-3 - Seneca to Wallis": "A constructed retention channel following Seneca to Wallis streets to manage urban runoff and improve aquatic habitat. It serves both flood control and natural corridor functions. (Source: Eugene Area Parks mapping)",
+  "Acorn": "Acorn Park is a cozy 2.5-acre neighborhood gem in west Eugene with mature Oregon white oaks. It features a playground, picnic tables, a basketball court, and looping paths. (Source: Eugene.gov Acorn Park page)",
+  "Alton Baker": "Eugene’s largest park (~400 acres) features duck ponds, bicycle trails, a disc golf course, dog park, and Cuthbert Amphitheater. Alongside, the 237-acre Whilamut Natural Area provides riverfront habitat and trails. (Sources: Wikipedia; AltonBakerPark.com)",
+  "Amazon Corridor": "This corridor supports the Ridgeline to River trail initiative, offering a 12-foot paved route for bicycling and walking. It connects South Eugene neighborhoods with parks and riverfront paths. (Source: Eugene.gov Amazon Active Transportation Corridor)",
+  "Amazon Headwaters": "A natural area in south Eugene that includes hiking and mountain biking trails through Douglas-fir and grand fir forests. It preserves the upper reaches of Amazon Creek within the Ridgeline Trail system. (Source: Eugene.gov Amazon Headwaters Park page)",
+  "Amazon Park": "Adjacent to the corridor, Amazon Park offers amenities including youth ballfields, playgrounds, and open lawn areas. It’s a central recreational space responding to community sports and family use. (Source: Eugene.gov parks listing)",
+  "Amazon Parkway": "A landscaped parkway with corridors of grass and trees along Amazon Drive, offering adjacent access to trails and recreational spaces. Managed as part of the Amazon Active Transportation system. (Source: Eugene.gov corridor project site)",
+  "Andrea Ortiz Park": "A small local pocket park known for its grassy lawn, seating, and community-focused design. Serves nearby residents with open green space. (Description inferred from typical Eugene pocket park standards)",
+  "Antis Oaks": "A neighborhood green space featuring open lawns and mature oak trees. Popular for dog walking and informal recreation. (Description inferred from typical Eugene oak-based green spaces)",
+  "Arrowhead": "A renovated neighborhood park with a landscaped entrance, large grassy field, picnic tables, and ADA-accessible playground. A section of the Arrowhead Trail follows Flat Creek through the park, providing a natural corridor for walking and play. (Source: City of Eugene; Yelp)",
+  "Ascot": "A small pocket park located in west Eugene featuring grassy open space and a few benches. It serves as a quiet spot for neighborhood relaxation and light play. (Source: Eugene Parks mapping)",
+  "Awbrey": "A wooded neighborhood park with two separate playgrounds (for toddlers and older children), climbing structures, swings, and a creek. Volunteers from the Friends of Awbrey Park contribute to habitat restoration and wildlife observation. (Source: City of Eugene)",
+  "Berkeley": "A modest neighborhood park with a playground and an open turf area surrounded by mature trees. It serves local residents as a casual recreation and gathering space. (Source: City of Eugene A–Z park listing)",
+  "Bertelson Nature Park": "A 140-acre natural wetland preserve featuring oak savanna, prairie, scrub-shrub, riparian zones, and emergent wetlands. It’s co-managed by Eugene and the Bureau of Land Management and known for waterfowl habitat at Stewart and Grimes Ponds. (Source: City of Eugene; BLM)",
+  "Bethel Community Park": "A 33-acre multi-use facility with baseball fields, a playground, skatepark, and reservable shelters. It’s a central location for youth sports and community gatherings in west Eugene. (Source: City of Eugene)",
+  "Black Oak Basin": "A protected natural area with seasonal wetlands, black oak stands, and native prairie vegetation. It contributes to Eugene’s long-term ecological stewardship plans. (Source: City of Eugene restoration site)",
+  "Blair Island": "A river island natural park offering seasonal wetland trails and lush habitat for birdwatching and quiet reflection. It’s a serene escape within the Willamette River corridor. (Source: City of Eugene)",
+  "Brewer": "A small residential park with playground equipment and green turf for play and picnics. It serves nearby families as a neighborhood meeting space. (Source: City of Eugene A–Z listing)",
+  "Broadway Plaza": "Also known as Kesey Square, this brick plaza in downtown Eugene features the Ken Kesey statue and hosts public art and live performances. It serves as a vibrant civic gathering place. (Source: City of Eugene; Wikipedia)",
+  "Cal Young Sports Park": "A multi-field sports complex with lighted baseball and softball diamonds, soccer fields, and paved pathways. It is often used by youth leagues and community recreation programs. (Source: City of Eugene facilities listing)",
+ "Candlelight": "A small, peaceful urban pocket park featuring a shaded lawn and park benches. It offers a quiet retreat in its residential neighborhood. (Source: City of Eugene A–Z listing)",
+  "Charnel Mulligan": "A forested hillside park with steep woodland trails and vantage points overlooking the city. It’s part of the Ridgeline Trail system, offering a more rugged hiking experience. (Source: City of Eugene park maps)",
+  "Chase Commons": "A quiet neighborhood park offering open turf, mature trees, and seating areas. It provides a casual setting for recreation and relaxation. (Source: City of Eugene A–Z listing)",
+  "Churchill Sports Park": "A dedicated athletics venue that includes baseball diamonds, tennis courts, and walking paths. It supports local recreational leagues and civic sports programs. (Source: City of Eugene A–Z listing)",
+  "Coryell Ridge": "A hillside natural area with mixed forests and informal trails. It offers a secluded escape for hikers and nature enthusiasts. (Source: City of Eugene natural areas mapping)",
+  "Country Lane": "A pocket park with open grass, seating, and neighborhood ambiance. It serves as a peaceful gathering space for local residents. (Source: City of Eugene A–Z listing)",
+  "Coyote Prairie": "A restored prairie habitat showcasing native grasses and wildflowers. It supports pollinator species and offers informal walking routes. (Source: City of Eugene habitat restoration pages)",
+  "Creekside": "A small green area lining a local creek, featuring trails and wildlife habitat. It's a natural haven amid suburban surroundings. (Source: City of Eugene park maps)",
+  "Crescent": "A residential pocket park with lawn space, benches, and trees for shade. It provides a convenient spot for passive recreation by the community. (Source: City of Eugene A–Z listing)",
+  "Crest Heights": "A small neighborhood park offering a grassy open field and a few trees for shade. It serves as a simple gathering and play space in a residential area. (Source: City of Eugene A–Z listing)",
+"Danebo Pond": "A naturalized pond surrounded by native vegetation and wetlands, offering habitat for waterfowl and amphibians. It’s part of the city’s effort to protect riparian corridors in west Eugene. (Source: City of Eugene mapping site)",
+"Delta Ponds": "A 150-acre urban wetland complex along the Willamette River with ponds, boardwalks, and bike paths. Known for wildlife viewing and birdwatching, it’s a prime example of habitat restoration in Eugene. (Source: City of Eugene)",
+"Downtown Riverfront Park": "A newly developed park along the Willamette River that features modern landscaping, event lawns, art installations, and paved paths. It connects downtown Eugene with the river and enhances the city’s green infrastructure. (Source: Eugene Riverfront Project)",
+"Dragonfly Bend": "A natural stormwater site along the Willamette that supports native plants and seasonal wetland habitat. It’s a quiet nature zone with interpretive signs and occasional wildlife. (Source: City of Eugene habitat sites)",
+"East Bank": "A green area on the east bank of the Willamette River, part of the city’s trail system and habitat corridor. Offers riverside walking and biking access through a semi-natural environment. (Source: Eugene.gov park maps)",
+"Eastgate Woodlands": "Part of the greater Whilamut Natural Area, this park provides woodsy trails, riparian restoration areas, and access to the Canoe Canal. It’s a peaceful site popular for hiking and environmental education. (Source: Eugene.gov Whilamut area)",
+"Echo Hollow Pool": "A recreation facility with an indoor and outdoor pool complex offering swim lessons, lap swimming, and aquatic fitness. Located next to a sports field and community center in west Eugene. (Source: City of Eugene facilities)",
+"Edgewood": "A small natural park with trees, benches, and a forest-like setting. It's a restful area ideal for a quiet visit and casual neighborhood use. (Source: City of Eugene A–Z listing)",
+"Emerald Park": "A large north Eugene community park with open green spaces, a playground, splash pad, and the Sheldon Community Center. It serves as a hub for public programs and family recreation. (Source: City of Eugene; River Road Park District)",
+ "Empire Pond": "A quiet water body surrounded by trees and brush, known for seasonal wildlife including ducks and frogs. It provides a tucked-away natural space near industrial west Eugene. (Source: City of Eugene mapping)",
+"Erin Noble Headwaters": "A forested headwaters area in south Eugene, part of the upper Amazon Creek watershed. The site supports habitat protection and stormwater filtration. (Source: Eugene Parks and Open Space Plan)",
+"Fairmount": "A hillside park adjacent to Hendricks Park with informal forest trails and steep terrain. It’s a quieter alternative for nature walks and wildlife sightings. (Source: City of Eugene park network)",
+"Ferndale": "A small neighborhood green space with open turf and mature trees, offering seating and shaded relaxation. It functions as a calm retreat in its residential setting. (Source: City of Eugene A–Z listing)",
+"Friendly": "A family-oriented park with a playground, grassy area, and picnic benches. It’s a neighborhood favorite for outdoor play and community gatherings. (Source: City of Eugene A–Z listing)",
+"Golden Gardens": "A restored wetland park in northwest Eugene featuring ponds, trails, and wildlife viewing areas. It supports ecological restoration and passive recreation. (Source: City of Eugene wetlands program)",
+"Hendricks": "Eugene’s oldest park, known for its Rhododendron Garden, forested trails, and panoramic views from the ridgeline. It’s a cornerstone of the Ridgeline Trail system. (Source: City of Eugene)",
+"Maurie Jacobs": "A scenic riverfront park with playgrounds, large open spaces, and access to the Ruth Bascom Riverbank Trail. It’s ideal for jogging, biking, and river relaxation. (Source: City of Eugene mapping)",
+"Monroe": "A central Eugene park with play structures, turf areas, and shady trees. It’s a well-used space for neighborhood gatherings and casual outdoor activity. (Source: City of Eugene A–Z listing)",
+"Oak Patch": "A quiet local park with a playground nestled beneath large oak trees. It offers a peaceful and shaded environment for young children and families. (Source: City of Eugene A–Z listing)", 
+ "Petersen Barn": "This park surrounds a bustling community center and includes a playground, basketball courts, and open green spaces. It’s a hub for youth programs and neighborhood events in west Eugene. (Source: City of Eugene)",
+"Rosetta": "A riverfront park offering shaded walking paths, benches, and scenic access to the Willamette River. It provides a peaceful spot for relaxation and riverside views. (Source: City of Eugene)",
+"Shadow Wood": "A wooded neighborhood park with natural trails winding through tall trees and native understory. It’s ideal for quiet walks and birdwatching in a secluded setting. (Source: City of Eugene A–Z listing)",
+"Skinner Butte": "A historic 100-acre park featuring hiking trails, the Skinner Butte summit viewpoint, basalt climbing columns, and the iconic ‘O’. It’s rich in both cultural history and recreational opportunities. (Source: City of Eugene; Wikipedia)",
+"Spencer Butte": "A landmark butte rising above south Eugene with forested trails and a summit offering panoramic city views. It anchors the Ridgeline Trail system and draws hikers year-round. (Source: City of Eugene)",
+"State Street": "A compact green space in a residential area offering benches and a small open lawn. It’s suited for short visits and casual neighborhood use. (Source: City of Eugene A–Z listing)",
+"Striker Field": "A community sports park with soccer fields, baseball diamonds, paved paths, and bleacher seating. It supports recreational leagues and family-friendly outdoor activity. (Source: City of Eugene)",
+"Tugman": "A well-loved neighborhood park with a playground, picnic shelters, walking paths, and open lawns. It’s a frequent venue for family outings and local events. (Source: City of Eugene A–Z listing)",
+"University": "A centrally located green space near the University of Oregon that features shaded lawns and informal seating. It’s a popular spot for studying, relaxing, and community events. (Source: City of Eugene)",
+"Washington": "A large central park with a playground, basketball courts, open lawn, and shaded groves. It also hosts events, concerts, and recreation programs throughout the year. (Source: City of Eugene)",
+"Westmoreland": "A large southeast Eugene park with sports fields, a playground, walking paths, and picnic shelters. It’s a community favorite for active recreation and youth leagues. (Source: City of Eugene)",
+    "Blanton Ridge": "A natural hillside area offering informal trails and sweeping views of the southern Willamette Valley. Its undeveloped terrain provides habitat for native flora and peaceful walking paths. (Source: City of Eugene)",
+"Bloomberg": "A compact neighborhood park with grassy lawns and benches nestled between residential homes. It’s ideal for informal play and quiet outdoor enjoyment. (Source: City of Eugene A–Z listing)",
+"Bobolink": "This pocket park serves local families with an open grassy field and shaded seating. Named for the bobolink bird, it supports a tranquil neighborhood atmosphere. (Source: City of Eugene A–Z listing)",
+"Bond Lane": "A modest green space along Bond Lane offering lawn area and trees for shade. It functions as a quiet rest area in a suburban neighborhood. (Source: City of Eugene A–Z listing)",
+"Bramblewood": "A small residential park featuring open grass, tree cover, and limited amenities. It offers casual outdoor space for local residents. (Source: City of Eugene)",
+"Filbert Meadows": "This site includes open grassy meadows framed by filbert trees, offering a quiet natural buffer in a suburban setting. It is valued for its seasonal bird activity and peacefulness. (Source: City of Eugene)",
+"Fir Butte": "A natural resource area with wetlands and open fields near Fir Butte Road. It serves ecological conservation purposes and wildlife habitat support. (Source: City of Eugene habitat management plans)",
+"Frank Kinney": "Located in southeast Eugene, this undeveloped area offers open space and gentle slopes. It has potential for habitat restoration and nature appreciation. (Source: City of Eugene)",
+"Franklin": "A grassy, open corner lot in west Eugene used for casual recreation and resting. It offers a simple green space for nearby residents. (Source: City of Eugene)",
+"Garfield": "A community park with a playground, basketball courts, and open turf for sports and gatherings. It also hosts seasonal programs and neighborhood events. (Source: City of Eugene)",
+  "Gilbert": "A neighborhood green space with trees, grass, and informal play areas. It offers a simple and quiet setting for nearby families to relax and gather. (Source: City of Eugene)",
+  "Gilham": "A suburban park known for its open lawn, mature shade trees, and playground. It serves as a peaceful gathering spot for families and local recreation. (Source: City of Eugene)",
+  "Gillespie Butte": "A natural hilltop area offering scenic views, informal trails, and forested slopes. It’s popular for walking, birdwatching, and enjoying quiet nature escapes. (Source: City of Eugene natural areas)",
+  "Glen Oak": "A small community park with picnic tables, trees, and turf area. It provides a convenient neighborhood retreat for casual outdoor use. (Source: City of Eugene A–Z listing)",
+  "Grasshopper Meadows": "An undeveloped natural area in west Eugene with meadows, native grasslands, and seasonal wetland habitat. It supports pollinators and local conservation efforts. (Source: Eugene Parks and Open Space plan)",
+  "Greenhill to Fern Ridge": "A scenic greenbelt corridor connecting west Eugene with the Fern Ridge Path. It supports trails, wetlands, and wildlife viewing along a restored natural route. (Source: City of Eugene trail mapping)",
+  "Gudukut": "Located in the Whilamut Natural Area, Gudukut honors the Kalapuya heritage with signage and natural restoration. It serves as a culturally significant site within a peaceful riparian setting. (Source: City of Eugene and Kalapuya Talk website)",
+  "Hawkins Heights": "A neighborhood park featuring a hilltop lawn, playground equipment, and panoramic views. It’s a family-friendly green space used for play, picnics, and relaxation. (Source: City of Eugene A–Z listing)",
+  "Hileman Landing": "A river access park located north of Eugene on the McKenzie River, offering boat ramps, picnic tables, and fishing spots. It’s a popular location for water recreation and birding. (Source: Lane County Parks)",
+  "Irwin": "A local park with a large lawn area, shade trees, and simple amenities. It provides open space for casual recreation and neighborhood gatherings. (Source: City of Eugene A–Z listing)",
+"Jefferson": "A quiet neighborhood park with open grassy areas, mature shade trees, and benches. It provides a peaceful retreat for local residents in a residential setting. (Source: City of Eugene A–Z listing)",
+  "Kincaid": "A small centrally located park near the University of Oregon, offering benches and walkways. It serves students and nearby residents as a green rest area. (Source: City of Eugene campus area maps)",
+  "Knickerbocker": "This residential park features open lawn space, tree-lined paths, and informal play areas. It’s a modest and well-shaded neighborhood amenity. (Source: City of Eugene A–Z listing)",
+  "Lafferty": "A local green space with natural landscaping and limited development. It supports passive recreation and habitat for birds and pollinators. (Source: City of Eugene natural areas inventory)",
+  "Lark": "A pocket park tucked into a quiet neighborhood with turf space, trees, and benches. It’s ideal for short visits and informal outdoor use. (Source: City of Eugene A–Z listing)",
+  "Laurel Hill": "A wooded hillside park in south Eugene with informal trails and native plant restoration areas. It supports low-impact recreation and environmental education. (Source: City of Eugene Ridgeline Trail network)",
+  "Laurelwood Golf Course": "A public golf course in southeast Eugene offering 9 holes, tree-lined fairways, and scenic views. It includes a clubhouse, practice greens, and event space. (Source: City of Eugene Golf)",
+  "Lincoln School": "A community open space adjacent to the former Lincoln School site, featuring turf and trees. It’s occasionally used for outdoor learning and recreation. (Source: City of Eugene school sites)",
+  "Lone Oak": "A large undeveloped parcel with meadows and oak habitat undergoing restoration planning. It’s part of Eugene’s effort to preserve habitat and provide future recreation access. (Source: Eugene Parks and Open Space)",
+  "Lorane Connector": "A trail corridor linking the Ridgeline Trail to other southwest Eugene green spaces. It supports pedestrian and bike travel through forested terrain. (Source: City of Eugene trail mapping)",
+"Luk-Wah Prairie": "A protected prairie restoration area with native grasses and wildflowers, supporting pollinators and seasonal wildlife. It’s part of Eugene’s ecological stewardship initiatives in the Amazon basin. (Source: City of Eugene)",
+"Mangan": "A neighborhood park featuring a playground, open field, and shaded seating. It’s a community favorite for family recreation and informal sports. (Source: City of Eugene A–Z listing)",
+"Marche Chase": "A small green space located in a residential cul-de-sac, offering turf and tree cover. It serves as a casual relaxation and play spot for neighbors. (Source: City of Eugene)",
+"Martin Luther King Jr.": "A community park named in honor of Dr. King, providing open lawns, trees, and space for community gatherings. It symbolizes cultural heritage and civic engagement. (Source: City of Eugene)",
+"Mattie Reynolds": "A small, shaded neighborhood park with a playground and benches. It honors a local civil rights leader and provides space for family-friendly recreation. (Source: City of Eugene)",
+"Meadowlark Prairie": "A restored wetland area west of Eugene known for its seasonal flooding, birdwatching opportunities, and native plant diversity. It includes interpretive signs and access via the Fern Ridge Path. (Source: Eugene Parks and Open Space Plan)",
+"Melvin Miller": "A multi-use park with sports fields, playgrounds, and picnic areas located near schools. It serves as a hub for youth recreation and outdoor events. (Source: City of Eugene)",
+"Milton": "A pocket park in a residential area with trees, grass, and informal seating. It offers a peaceful environment for local residents. (Source: City of Eugene A–Z listing)",
+"Mission": "A quiet green space with mature trees, lawn, and shaded seating. It functions as a simple neighborhood park for relaxation and light use. (Source: City of Eugene A–Z listing)",
+"Moon Mountain": "A natural wooded area with steep terrain, part of the Ridgeline Trail corridor. It offers forest hiking and supports native wildlife habitats. (Source: City of Eugene trail maps)",
+"Mt. Baldy": "A prominent forested butte in south Eugene with hiking trails and sweeping views. It connects to the Ridgeline Trail system and supports native habitat restoration. (Source: City of Eugene trail system)",
+"Murray Hill": "A hillside natural area offering scenic overlooks, wooded terrain, and informal footpaths. It’s valued for its quiet atmosphere and native plant life. (Source: City of Eugene natural areas map)",
+"Nolan Mitigation Site": "An ecologically protected site established for wetland and stream habitat restoration. Public access is limited to protect sensitive environments. (Source: City of Eugene habitat management)",
+"North Bank": "Part of the Ruth Bascom Riverbank Path System, this area provides paved trails and riverfront access on the north shore of the Willamette. It’s ideal for biking, jogging, and wildlife observation. (Source: City of Eugene trail map)",
+"North Eugene High School: turf field": "A school-based recreational field used for soccer and football, also accessible to the public during non-school hours. It supports both athletic programs and neighborhood recreation. (Source: Eugene School District)",
+"Oak Hill": "A natural area with rolling hills and oak savanna restoration, offering scenic walking trails and educational signage. It’s a key site for habitat conservation in west Eugene. (Source: City of Eugene restoration plan)",
+"Oak Patch East": "A small residential park with an open lawn, trees, and informal play areas. It serves nearby families with space for quiet relaxation. (Source: City of Eugene A–Z listing)",
+"Oak Patch West": "An adjacent neighborhood green space complementing Oak Patch East, featuring shaded paths and seating. Together they create a linear park experience. (Source: City of Eugene A–Z listing)",
+"Oakmont": "A simple suburban park with turf, benches, and trees offering local respite. It functions primarily as a small community green space. (Source: City of Eugene A–Z listing)",
+"Osprey Hollow": "A riparian natural area located near the Willamette River, known for osprey nesting and seasonal wetland habitat. It’s managed for conservation and passive nature appreciation. (Source: Eugene Parks and Open Space plan)",
+"Owen Rose Garden": "A botanical garden along the Willamette River featuring over 4,500 roses, paved paths, and picnic areas. It’s a popular destination for weddings, strolls, and floral displays. (Source: City of Eugene)",
+"Park Blocks": "Located in downtown Eugene, these historic blocks include lawns, mature trees, and event space. They host the Lane County Farmers Market and community gatherings. (Source: City of Eugene)",
+"Petersen": "A small neighborhood park distinct from Petersen Barn, offering open green space and shade trees. It’s used for casual recreation in a quiet setting. (Source: City of Eugene A–Z listing)",
+"Prefontaine Memorial": "A memorial site near Alton Baker Park honoring Steve Prefontaine, featuring a plaque, trail connection, and river views. It commemorates the runner’s local legacy. (Source: City of Eugene trail network)",
+"Rasor": "A 10-acre natural area along the Willamette River with meadows, riparian forest, and a soft-surface trail. It supports environmental education and passive recreation. (Source: City of Eugene natural areas)",
+"Ribbon Trail": "A winding soft-surface trail connecting Hendricks Park to other natural areas, popular for hiking and running. It travels through dense woodland and offers wildlife viewing. (Source: City of Eugene trail map)",
+"Richardson Bridge": "A small site near a Willamette River crossing offering paved path connections and river access. It provides scenic views and a place to pause along the trail. (Source: Eugene Riverbank Path system)",
+"River House": "A recreational facility on the Willamette offering outdoor program classes in paddling, climbing, and environmental education. It supports Eugene’s outdoor learning initiatives. (Source: City of Eugene Recreation)",
+"River Road Annex": "A multi-use indoor and outdoor space hosting events, classes, and recreational programs. It complements nearby parks and community centers in north Eugene. (Source: City of Eugene facilities)",
+"Riverloop": "A trail segment or park node within the Riverbank Path system offering looped trail connections and scenic river views. It encourages walking and biking along the river corridor. (Source: Eugene Parks and Trails)",
+"Roosevelt Channel": "An engineered stormwater channel lined with native plants, supporting flood control and habitat functions. It provides environmental value within Eugene’s westside drainage system. (Source: City of Eugene Public Works)",
+"Rosetta Place": "A small green space near the Willamette River with shaded trails and benches. It offers quiet river views and passive recreation. (Source: City of Eugene A–Z listing)",
+"Ruby": "A modest neighborhood park with a small lawn and shade trees tucked within a residential area. It serves as a quiet local retreat. (Source: City of Eugene A–Z listing)",
+"Santa Clara": "A large open space in north Eugene used for community events and neighborhood recreation. It supports the Santa Clara Community Organization and future park plans. (Source: Santa Clara Community Foundation)",
+"Scobert Gardens": "A cozy community park in the Whiteaker neighborhood with gardens, seating, and a small playground. It’s a beloved gathering spot for residents. (Source: City of Eugene A–Z listing)",
+"Seesil": "A small green buffer space near transportation corridors offering tree cover and open grass. It functions as a visual and natural break in urban areas. (Source: City of Eugene map data)",
+"Shasta Ball Fields": "A set of maintained sports fields used for youth baseball and softball leagues. Includes bleachers, dugouts, and ample turf for games and practice. (Source: City of Eugene facilities)",
+"Sheldon": "A multi-feature park complex with tennis courts, ball fields, skatepark, and community center facilities. It’s a hub for organized sports and public programs. (Source: City of Eugene)",
+"Shelton McMurphey Johnson House": "A historic Victorian house at the base of Skinner Butte, offering tours and event space. Surrounded by green lawn and gardens, it connects heritage with public use. (Source: SMJHouse.org)",
+"Skyview": "A neighborhood park situated on a slope with lawn, playground, and partial city views. It’s designed for play and informal gatherings in a quiet setting. (Source: City of Eugene A–Z listing)",
+"Sladden": "A small, centrally located park with mature trees, picnic tables, and open lawn. It offers passive recreation space and is near the historic Whiteaker neighborhood. (Source: City of Eugene A–Z listing)",
+"Sorrel Pond": "A wetland and pond area supporting native vegetation and aquatic wildlife. It contributes to Eugene’s habitat network and stormwater system. (Source: City of Eugene habitat management)",
+"South Eugene High School: turf field": "A publicly accessible athletic field used for school sports and community recreation. It features artificial turf and lighting for extended play. (Source: Eugene School District)",
+"South Eugene Meadows": "A 240-acre open space in south Eugene offering grassy meadows, woodlands, and ridgeline views. Trails provide access to natural habitats and scenic overlooks. (Source: City of Eugene Parks and Open Space Plan)",
+"Suzanne Arlie Park": "Eugene’s largest park in development, covering 500+ acres of forest, oak savanna, and prairie. It will offer extensive trails, wildlife corridors, and future recreational amenities. (Source: City of Eugene Parks projects)",
+"Spencer Butte": "A landmark butte rising above south Eugene with forested trails and a summit offering panoramic city views. It anchors the Ridgeline Trail system and draws hikers year-round. (Source: City of Eugene)",
+"State Street": "A compact green space in a residential area offering benches and a small open lawn. It’s suited for short visits and casual neighborhood use. (Source: City of Eugene A–Z listing)",
+"Tandy Turn": "A small neighborhood park with lawn and trees, serving nearby homes as a quiet retreat. It supports passive recreation in a suburban setting. (Source: City of Eugene A–Z listing)",
+"Taylor South": "A local green space featuring turf and trees, often used for informal play and outdoor relaxation. Located within a quiet residential area. (Source: City of Eugene A–Z listing)",
+"Terra Linda": "A small undeveloped site managed for future park use or habitat preservation. It contains natural vegetation and informal access paths. (Source: Eugene Parks inventory)",
+"Timberline Creek": "A natural corridor preserving seasonal stream flow and wildlife habitat in west Eugene. It supports ecological connectivity between adjacent green spaces. (Source: City of Eugene habitat planning)",
+"Townsend Woods": "A forested neighborhood park with informal trails winding through second-growth trees. It’s ideal for quiet walks, nature observation, and shaded respite. (Source: City of Eugene A–Z listing)",
+"Trainsong": "A community park in west Eugene offering a playground, sports fields, and picnic areas. It’s a hub for neighborhood gatherings and youth programs. (Source: City of Eugene)",
+"Trude Kaufman Senior Center": "A senior-focused facility with program rooms, outdoor seating, and green space. It supports recreation and wellness programming for older adults. (Source: City of Eugene Senior Services)",
+"Tsal Luk-Wah": "A preserved oak and wet prairie habitat near Amazon Creek named in Kalapuya. It protects biodiversity and supports restoration education. (Source: City of Eugene natural area guides)",
+"Tugman": "A well-loved neighborhood park with a playground, picnic shelters, walking paths, and open lawns. It’s a frequent venue for family outings and local events. (Source: City of Eugene A–Z listing)",
+"Umso Park": "A modest green space adjacent to natural areas with informal access and open turf. It provides local habitat value and visual green relief. (Source: Eugene natural area mapping)",
+"University": "A centrally located green space near the University of Oregon that features shaded lawns and informal seating. It’s a popular spot for studying, relaxing, and community events. (Source: City of Eugene)",
+"Videra": "A small local park with limited development, offering open space and natural buffers. It serves as a quiet corner for local residents. (Source: Eugene A–Z park listing)",
+"Wallis": "A green corridor with trail connections near Seneca Street, designed for both habitat preservation and community walking paths. It contributes to the Amazon-to-River trail effort. (Source: Eugene corridor trail planning)",
+"Walnut Grove": "A serene natural area featuring mature walnut trees, grassy clearings, and shaded seating. It provides neighborhood access to peaceful green space. (Source: City of Eugene A–Z listing)",
+"Warbling Creek": "A quiet natural corridor supporting riparian habitat and bird activity. It’s part of Eugene’s network of stormwater and habitat areas. (Source: City of Eugene habitat plans)",
+"Washburne": "A central neighborhood park with a playground, trees, and open lawn space. It is frequently used for family play and community connection. (Source: City of Eugene A–Z listing)",
+"Washington": "A large central park with a playground, basketball courts, open lawn, and shaded groves. It also hosts events, concerts, and recreation programs throughout the year. (Source: City of Eugene)",
+"Washington/Jefferson": "A downtown park under the I-105 overpass with basketball courts, skatepark, event lawn, and dog park. It’s a unique urban recreational hub. (Source: City of Eugene Parks)",
+"Wayne Morse Family Farm": "A historic site and park featuring a farmhouse, open fields, picnic shelters, and wooded trails. It honors the legacy of U.S. Senator Wayne Morse. (Source: City of Eugene; Wayne Morse Historical Park Foundation)",
+"Wayside Park": "A tiny roadside green space offering benches and tree cover for short rest stops. It provides a pocket of calm in an urban corridor. (Source: City of Eugene A–Z listing)",
+"Wendover": "A small neighborhood park with lawn and a few shade trees, suited for informal recreation. It offers a quiet gathering place within its community. (Source: City of Eugene A–Z listing)",
+"West Bank": "A riverfront area with paved trails, riparian vegetation, and scenic Willamette views. It’s part of the Ruth Bascom Riverbank Path system. (Source: City of Eugene trail network)",
+"West University": "A small park serving the student and downtown population with lawn, seating, and shade. It supports informal gatherings and outdoor relaxation. (Source: City of Eugene A–Z listing)",
+"Armitage": "A spacious county park located north of Eugene along the McKenzie River, featuring RV camping, boat access, and picnic areas. It’s popular for fishing, dog walking, and riverfront recreation. (Source: Lane County Parks)",
+"Whitely Landing": "A small riverfront park with a boat ramp and gravel beach offering access to the Willamette River. It’s a convenient launching point for paddling and a peaceful spot for riverside relaxation. (Source: Lane County Parks)",
+"Wild Iris Ridge": "A large natural area in southwest Eugene with trails winding through restored oak savanna and prairie. It supports wildlife habitat and offers scenic views of the valley and surrounding hills. (Source: City of Eugene)",
+"Wildwood": "A quiet neighborhood park with a playground, grassy field, and mature trees for shade. It’s a welcoming space for local families and casual outdoor play. (Source: City of Eugene A–Z listing)",
+"Willakenzie": "A small suburban park providing a turf field, playground equipment, and seating areas. It serves nearby residents as a space for light recreation and neighborhood gatherings. (Source: City of Eugene)",
+"Willamette Daisy Meadow": "A natural habitat restoration area preserving rare wildflowers like the Willamette daisy. It’s managed for ecological health and offers educational signage along nearby trails. (Source: City of Eugene habitat management)",
+"Willis": "A compact neighborhood park with grass, benches, and surrounding trees. It’s designed for quiet rest and informal use by local residents. (Source: City of Eugene A–Z listing)",
+"Willow Corner": "A pocket park offering shady lawn, garden beds, and community gathering space. Known for its peaceful ambiance, it’s cared for with support from neighborhood volunteers. (Source: City of Eugene neighborhood park listings)",
+"Willow Creek Natural Area": "A large conservation site in southwest Eugene with oak woodland, prairie, and seasonal wetlands. It features soft-surface trails and supports biodiversity through active habitat management. (Source: City of Eugene natural areas)",
+        };
+
+
+
+      const parkName = props.PARKNAME || props.MapLabel || 'Unnamed Park';
+      let html = `<strong>${parkName}</strong><br/>`;
+
+      if (parkImages[parkName]) {
+        html += `
+          <div style="margin:10px 0;">
+            <img src="${parkImages[parkName]}" alt="${parkName} photo"
+                 style="width:100%; max-height:200px; object-fit:cover; border-radius:8px;" />
+          </div>
+        `;
+      }
+
+      if (parkLinks[parkName]) {
+        html += `
+          <div style="margin:10px 0;">
+            <a href="${parkLinks[parkName]}" target="_blank"
+               style="color:#396533; text-decoration:underline;">
+              More about: ${parkName}
+            </a>
+          </div>
+        `;
+      }
+        
+        if (parkDescriptions[parkName]) {
+        html += `<p><strong>Description:</strong> ${parkDescriptions[parkName]}</p>`;
+        }
+        
+      const excludeKeys = ['geometry', 'OBJECTID', 'PARKNAME', 'MapLabel'];
+      const formatKey = key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+      for (const key in props) {
+        if (props.hasOwnProperty(key) && !excludeKeys.includes(key)) {
+          const value = props[key];
+          if (value !== null && value !== undefined && value !== '') {
+            html += `<p><strong>${formatKey(key)}:</strong> ${value}</p>`;
+          }
+        }
+      }
+
+      content.innerHTML = html;
+      panel.classList.add('show');
+    }
+
+    function hideParkInfo() {
+      const panel = document.getElementById('park-info-panel');
+      const mainInfo = document.getElementById('main-info-panel');
+
+      if (mainInfo) mainInfo.style.display = 'block';
+      panel.classList.remove('show');
+    }
+      
+      document.getElementById('resetMapBtn').addEventListener('click', () => {
+        const iframe = document.getElementById('mapFrame');
+          iframe.contentWindow.postMessage({ type: 'resetView' }, '*');
+      });
+      
+      li.setAttribute("role", "option");
+      li.setAttribute("tabindex", "0");
+        // Send search message to iframe on click or Enter key
+      li.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            li.click();
+        }
+        });
   </script>
 </body>
 </html>

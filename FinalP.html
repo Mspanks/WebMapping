@@ -8,11 +8,13 @@
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
   <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+    <!--Fonts-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
 
   <style>
+   /*CSS*/ 
     html, body {
       margin: 0;
       padding: 0;
@@ -27,21 +29,26 @@
     }
 
     .mapboxgl-popup-content {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Barlow', Arial, Helvetica, sans-serif;
       font-size: 13px;
       padding: 10px;
       background: #fff;
       color: #5F5374;
     }
+      
+
   </style>
 </head>
 
 <body>
+    <!--Add map-->
   <div id="map"></div>
-
+    
   <script>
+    
     mapboxgl.accessToken = 'pk.eyJ1IjoibXNwYW5rcyIsImEiOiJjbTh6MG1zZmkwNzgwMmpvaG8wbWNwb3pvIn0.ne8NRgK1Ro_OLnlTFHDHcA';
-
+      
+      //
     const map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mspanks/cmb6whan400jz01swbafmfxck',
@@ -53,15 +60,28 @@
         [-122.75, 44.35]
       ]
     });
-
-    const formatKey = key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
+    //
     const popup = new mapboxgl.Popup({
       closeButton: false,
       closeOnClick: false,
       anchor: 'bottom',
       offset: 10
     });
+      //Can click on park and get info//
+    function generatePopupContent(props) {
+      const formatKey = key => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      let content = `<strong>${props.PARKNAME || props.MapLabel || 'Unnamed Park'}</strong><br/>`;
+      const excludeKeys = ['geometry', 'OBJECTID', 'PARKNAME', 'MapLabel'];
+      for (const key in props) {
+        if (props.hasOwnProperty(key) && !excludeKeys.includes(key)) {
+          const value = props[key];
+          if (value !== null && value !== undefined && value !== '') {
+            content += `<p><strong>${formatKey(key)}:</strong> ${value}</p>`;
+          }
+        }
+      }
+      return content;
+    }
 
     map.on('load', () => {
       map.addSource('parks', {
@@ -98,18 +118,11 @@
         map.setFilter('parks-hover-highlight', ['==', 'OBJECTID', feature.properties.OBJECTID]);
         map.getCanvas().style.cursor = 'pointer';
 
-        const props = feature.properties;
-        let popupContent = `<strong>${props.PARKNAME || props.MapLabel || 'Unnamed Park'}</strong><br/>`;
-        const excludeKeys = ['geometry', 'OBJECTID', 'PARKNAME', 'MapLabel'];
-        for (const key in props) {
-          if (props.hasOwnProperty(key) && !excludeKeys.includes(key)) {
-            const value = props[key];
-            if (value !== null && value !== undefined && value !== '') {
-              popupContent += `<p><strong>${formatKey(key)}:</strong> ${value}</p>`;
-            }
-          }
-        }
+        // Hide sidebar when showing hover popup
+        window.parent.postMessage({ type: 'clearSidebar' }, '*');
 
+        const props = feature.properties;
+        const popupContent = generatePopupContent(props);
         popup.setLngLat(e.lngLat).setHTML(popupContent).addTo(map);
       });
 
@@ -121,7 +134,8 @@
 
       map.on('click', 'parks-fill-layer', (e) => {
         if (!e.features.length) return;
-        const geometry = e.features[0].geometry;
+        const feature = e.features[0];
+        const geometry = feature.geometry;
         const bounds = new mapboxgl.LngLatBounds();
 
         if (geometry.type === 'Polygon') {
@@ -131,9 +145,11 @@
         }
 
         map.fitBounds(bounds, { padding: 60, duration: 1000 });
+
+        // Show sidebar with park info
+        window.parent.postMessage({ type: 'parkDetails', data: feature.properties }, '*');
       });
 
-      // Fetch park list and send to container
       setTimeout(() => {
         const allFeatures = map.querySourceFeatures('parks', {
           sourceLayer: 'Eugene_Area_Parks_-5915046336-cgr2n8'
@@ -151,7 +167,6 @@
       }, 1000);
     });
 
-    // Message handler
     window.addEventListener('message', (event) => {
       if (event.data && event.data.type === 'search') {
         const searchTerm = (event.data.query || '').trim().toLowerCase();
@@ -194,10 +209,17 @@
 
             map.setFilter('parks-hover-highlight', ['==', 'OBJECTID', matchedFeature.properties.OBJECTID]);
 
+            const popupContent = generatePopupContent(matchedFeature.properties);
+
+            // Hide sidebar before showing popup
+            window.parent.postMessage({ type: 'clearSidebar' }, '*');
+
             popup
               .setLngLat(bounds.getCenter())
-              .setHTML(`<strong>${matchedFeature.properties.PARKNAME}</strong>`)
+              .setHTML(popupContent)
               .addTo(map);
+
+            window.parent.postMessage({ type: 'parkDetails', data: matchedFeature.properties }, '*');
           }
         } else {
           console.log("No matching park found.");

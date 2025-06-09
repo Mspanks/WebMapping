@@ -1,9 +1,31 @@
+
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
+  font-family: 'Barlow', sans-serif; /* Global Barlow */
 }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.content {
+    font-family: 'Barlow', sans-serif; }
+
+.content.is-hidden {
+  display: none !important;
+}
+
 
 /* Header */
 
@@ -17,10 +39,11 @@ html, body {
 }
 
 .site-title {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   line-height: 4rem;
   color: White;
- font-family: Barlow;
+ font-family: 'Barlow', sans-serif;
+
 }
 
 /* Main */
@@ -75,7 +98,7 @@ html, body {
   top: 100%;
   right: 0;
   min-width: 100%;
-  max-height: 200px;
+  max-height: 430px;
   overflow-y: auto;
   border: 1px solid #ccc;
   background: white;
@@ -85,28 +108,16 @@ html, body {
   z-index: 10;
 }
 
-.search-results li {
-  padding: 8px 10px;
+    .search-results li {
+  padding: 12px 14px;         
   cursor: pointer;
   list-style: none;
   border-top: 1px solid #8683a0;
-}
-
-.search-results li:hover {
-  background-color: #f0f0f0;
-}
-
-/* Optional smooth dropdown (if you toggle a class like `.show`) */
-/*
-.search-results {
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-.search-results.show {
-  display: block;
-  opacity: 1;
-}
-*/
+  line-height: 1.6;        
+      }
+    .search-results li:hover {
+      background-color: #f0f0f0;
+    }
 
 /* Map */
 .map-container {
@@ -163,7 +174,6 @@ iframe {
   width: 2rem;                  /* Equal width and height */
   height: 2rem;
   font-size: 1.5rem;
-    text-align: center;
   color: #000;
   background-color: #9cc47e;
   border: none;                /* No border */
@@ -177,7 +187,9 @@ iframe {
 }
 
 
-
+.content-close-button:hover {
+    background-color: #9cc47e
+}
 
 
 /* Content */
@@ -207,6 +219,7 @@ iframe {
   top: 1rem;
   right: 1rem;
   z-index: 1000;
+ font-family: Barlow;
 }
 
 .content-open-button {
@@ -214,9 +227,82 @@ iframe {
   background-color: #9cc47e;
   color: #000000;
   border: none;
+     font-family: Barlow;
+
 }
+
 
 .content-open-button:hover {
   background-color: #8683a0;
   color: #000000;
 }
+
+
+.sidebar{
+  font-family: Barlow;  
+    
+}
+
+.content.cell.large-3.large-order-3{
+    background-color: WhiteSmoke;
+}
+
+.sidebar.cell.medium-3.large-2.large-order-1.show-for-medium{
+    background-color: WhiteSmoke;
+    position: relative;
+    height: 92.7%;
+}
+
+ .LegendContainer {
+  position: absolute;
+  bottom: 10px;
+     width: 240px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  border-radius: 7px;
+     border: dotted;
+    border-color: #8683a0;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background-color: #ffffff;
+}
+.Legend {
+    width:100%;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  width: 40%; /* two items per row with gap */
+  color: white;
+    font-family: 'Barlow', Arial, Helvetica, sans-serif;
+    font-weight: 500;
+}
+       /* style for items with the class "layerDescription" */
+   .layerDescription {
+     color: #000000;
+     padding-left: 10px;
+   }
+
+
+.reset-map-button {
+ position: absolute;
+  bottom: 155px;
+     width: 240px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  border-radius: 7px;
+     border: dotted;
+    border-color: #8683a0;
+  padding: 10px;
+  background-color: #9cc47e;
+}
+
+.reset-map-button:hover {
+  background-color: #8683a0;
+}
+
